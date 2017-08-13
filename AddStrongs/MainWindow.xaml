@@ -3,10 +3,15 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AddStrongs"
+        xmlns:local="clr-namespace:TheWord"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="AddStrongs Bible Tool" Height="350" Width="525">
     <Grid>
-        
+        <Button x:Name="BtnNext" Content="Next" HorizontalAlignment="Left" Margin="110,231,0,0" VerticalAlignment="Top" Width="75" Click="BtnNext_Click"/>
+        <local:VerseView x:Name="VerseView1" HorizontalAlignment="Left" Height="100" Margin="10,10,0,0" VerticalAlignment="Top" Width="498" Background="{DynamicResource {x:Static SystemColors.InfoBrushKey}}"/>
+        <local:VerseView x:Name="VerseView2" HorizontalAlignment="Left" Height="100" Margin="10,126,0,0" VerticalAlignment="Top" Width="498" Background="{DynamicResource {x:Static SystemColors.InfoBrushKey}}"/>
+        <Button x:Name="BtnPrev" Content="Previous" HorizontalAlignment="Left" Margin="10,231,0,0" VerticalAlignment="Top" Width="75" Click="BtnPrev_Click"/>
+        <TextBlock x:Name="TbLine" HorizontalAlignment="Left" Margin="10,295,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top"/>
+
     </Grid>
 </Window>
