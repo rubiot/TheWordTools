@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TheWord
 {
-  public class Syntagm
-  {
-    public string word;
-    public List<string> tags;
-  }
-
   class Parser
   {
+    static TokenType[] TagTokens = new[] { TokenType.Strong, TokenType.Morpho };
+
     Tokenizer tokenizer = new Tokenizer();
 
     public void Parse(string verse)
@@ -30,25 +24,22 @@ namespace TheWord
         switch (tokenList[i].Type)
         {
           case TokenType.Meta:
+            yield return new Syntagm() { Text = tokenList[i].Value, Displayable = false };
             break;
           case TokenType.Space:
-            yield return new Syntagm() { word = tokenList[i].Value };
+            yield return new Syntagm() { Text = tokenList[i].Value };
             break;
           case TokenType.Word:
-            Syntagm syntagm = new Syntagm()
-            {
-              word = tokenList[i].Value,
-              tags = new List<string>()
-            };
+            Syntagm syntagm = new Syntagm() { Text = tokenList[i].Value };
             int t;
-            for (t = i + 1; t < tokenList.Count && new[] { TokenType.Strong, TokenType.Morpho }.Contains(tokenList[t].Type); t++)
-              syntagm.tags.Add(tokenList[t].Value);
+            for (t = i + 1; t < tokenList.Count && TagTokens.Contains(tokenList[t].Type); t++)
+              syntagm.AddTag(tokenList[t].Value);
             i = t - 1;
             yield return syntagm;
             break;
           case TokenType.Strong:
           case TokenType.Morpho:
-            throw new Exception("Strong and morphology tag must follow a word");
+            throw new Exception("Strong and morphology tags must follow a word");
           default:
             throw new Exception($"Unhandled token type: {tokenList[i].Type}");
         }

@@ -11,7 +11,8 @@
         <local:VerseView x:Name="VerseView1" HorizontalAlignment="Left" Height="100" Margin="10,10,0,0" VerticalAlignment="Top" Width="498" Background="{DynamicResource {x:Static SystemColors.InfoBrushKey}}"/>
         <local:VerseView x:Name="VerseView2" HorizontalAlignment="Left" Height="100" Margin="10,126,0,0" VerticalAlignment="Top" Width="498" Background="{DynamicResource {x:Static SystemColors.InfoBrushKey}}"/>
         <Button x:Name="BtnPrev" Content="Previous" HorizontalAlignment="Left" Margin="10,231,0,0" VerticalAlignment="Top" Width="75" Click="BtnPrev_Click"/>
-        <TextBlock x:Name="TbLine" HorizontalAlignment="Left" Margin="10,295,0,0" TextWrapping="Wrap" Text="TextBlock" VerticalAlignment="Top"/>
+        <TextBox x:Name="LineTextBox" HorizontalAlignment="Left" Height="23" Margin="10,255,0,0" TextWrapping="Wrap" Text="Enter line here..." VerticalAlignment="Top" Width="175" KeyUp="LineTextBox_KeyUp"/>
+        <TextBox x:Name="TagsTextBox" HorizontalAlignment="Left" Height="23" Margin="206,231,0,0" TextWrapping="Wrap" Text="TextBox" VerticalAlignment="Top" Width="302"/>
 
     </Grid>
 </Window>

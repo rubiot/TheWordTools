@@ -62,8 +62,8 @@ namespace TheWord
       tokenDefinitions.Add(new TokenDefinition(TokenType.Morpho, "<WT[^> ]+( l(emma)?=\"[^\"]+\")>"));
       tokenDefinitions.Add(new TokenDefinition(TokenType.Strong, "<W[HG][^>]+>"));
       tokenDefinitions.Add(new TokenDefinition(TokenType.Meta,   @"<RF.*?<Rf>|<TS\d*>.*?<Ts>|<[^>]+>"));
-      tokenDefinitions.Add(new TokenDefinition(TokenType.Space,  @"[\s.,!?:;]+"));
-      tokenDefinitions.Add(new TokenDefinition(TokenType.Word,   "[^< .,!?:;]+"));
+      tokenDefinitions.Add(new TokenDefinition(TokenType.Space,  @"[\s.,!?:;·—]+"));
+      tokenDefinitions.Add(new TokenDefinition(TokenType.Word,   "[^< .,!?:;·—]+"));
     }
   }
 

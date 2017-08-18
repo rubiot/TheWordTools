@@ -1,18 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 
 namespace TheWord
 {
+  public class SyntagmClickArgs : EventArgs
+  {
+    public SyntagmClickArgs(Syntagm s)
+    {
+      Syntagm = s;
+    }
+    public Syntagm Syntagm { get; set; }
+  }
+
   public class VerseView : WrapPanel
   {
+    public SyntagmBlock Selected { get; set; }
     BibleModule dataSource;
     public BibleModule DataSource
     {
@@ -20,56 +23,50 @@ namespace TheWord
       set
       {
         dataSource = value;
-        dataSource.SubscribeView(this);
+        dataSource.OnNewVerse += OnNewVerse;
+        OnNewVerse(this, new NewVerseArgs(dataSource.Current.Syntagms));
       }
     }
 
+    public event EventHandler<SyntagmClickArgs> OnSyntagmClick;
+
     public VerseView() : base()
     {
-      Margin = new Thickness(20);
+      //Margin = new Thickness(20);
     }
 
-    ~VerseView()
+    protected virtual void RaiseSyntagmClick(SyntagmClickArgs e)
     {
-      dataSource?.UnsubscribeView(this);
+      OnSyntagmClick?.Invoke(this, e);
+    }
+
+    private void OnNewVerse(object sender, NewVerseArgs e)
+    {
+      Clear();
+      foreach (var syntagm in e.Syntagms)
+        if (syntagm.Displayable)
+          AddSyntagm(syntagm);
     }
 
     private void AddSyntagm(Syntagm syntagm)
     {
-      Children.Add(MakeTextBlock(syntagm));
+      var s = new SyntagmBlock(syntagm);
+      s.OnSyntagmClick += OnSyntagmBlockClick;
+      Children.Add(s);
+    }
+
+    private void OnSyntagmBlockClick(object sender, SyntagmClickArgs e)
+    {
+      SyntagmBlock syntagm = (SyntagmBlock)sender;
+      Selected?.Unselect();
+      syntagm.Select();
+      Selected = syntagm;
+      RaiseSyntagmClick(e);
     }
 
     public void Clear()
     {
       Children.Clear();
     }
-
-    public void Update(IEnumerable<Syntagm> syntagms)
-    {
-      Clear();
-      foreach (var syntagm in syntagms)
-        AddSyntagm(syntagm);
-    }
-
-    private TextBlock MakeTextBlock(Syntagm syntagm)
-    {
-      var run = new Run(syntagm.word) { Focusable = true };
-      run.MouseEnter += Word_MouseEnter;
-      run.MouseLeave += Word_MouseLeave;
-      if (syntagm?.tags?.Count > 0)
-        run.ToolTip = String.Join("", syntagm.tags);
-      return new TextBlock(run) { Tag = syntagm };
-    }
-
-    private void Word_MouseEnter(object sender, MouseEventArgs e)
-    {
-      ((Run)sender).Foreground = Brushes.Brown;
-    }
-
-    private void Word_MouseLeave(object sender, MouseEventArgs e)
-    {
-      ((Run)sender).Foreground = Brushes.Black;
-    }
-
   }
 }

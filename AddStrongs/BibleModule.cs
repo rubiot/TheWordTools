@@ -1,28 +1,52 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace TheWord
 {
+  public class NewVerseArgs : EventArgs
+  {
+    public NewVerseArgs(IEnumerable<Syntagm> syntagms)
+    {
+      Syntagms = syntagms;
+    }
+
+    public IEnumerable<Syntagm> Syntagms { get; set; }
+  }
+
   public class Verse
   {
     Parser parser = new Parser();
-    private string text;
     public string Text
     {
-      get => text;
-      set
+      get
       {
-        text = value;
-        parser.Parse(text);
+        var result = new StringBuilder();
+        foreach (var syntagm in Syntagms)
+        {
+          result.Append(syntagm.Text);
+          result.Append(String.Join("", syntagm.AllTags));
+        }
+        return result.ToString();
       }
+      set => parser.Parse(value);
     }
+
     public IEnumerable<Syntagm> Syntagms
     {
       get => parser.GetSyntagms();
+    }
+
+    private string GetText()
+    {
+      var result = new StringBuilder();
+      foreach (var syntagm in parser.GetSyntagms())
+      {
+        result.Append(syntagm.Text);
+        result.Append(syntagm.AllTags);
+      }
+      return result.ToString();
     }
   }
 
@@ -38,7 +62,9 @@ namespace TheWord
     public Verse Current { get => current; }
 
     ushort line = 0;
-    public ushort Line { get => line; }
+    public ushort Line { get => line; set => GoToLine(value); }
+
+    public event EventHandler<NewVerseArgs> OnNewVerse;
 
     public BibleModule(string _file)
     {
@@ -47,6 +73,7 @@ namespace TheWord
       stream = new StreamReader(_file);
       file = _file;
       IndexModule();
+      Line = 1;
     }
 
     static public long GetActualPosition(StreamReader reader)
@@ -99,7 +126,8 @@ namespace TheWord
     {
       while (stream.Peek() > -1)
       {
-        //offsets[line++] = stream.BaseStream.Position;
+        //offsets[line++] = stream.BaseStream.Position; fails to consider buffers!!
+        //                                              StreamReader should implement its own Position
         offsets[line++] = GetActualPosition(stream);
         stream.ReadLine();
       }
@@ -113,7 +141,7 @@ namespace TheWord
       if (line < maxLine)
       {
         current.Text = ReadLine();
-        UpdateViewers();
+        RaiseNewVerse(new NewVerseArgs(current.Syntagms));
       }
     }
 
@@ -123,31 +151,20 @@ namespace TheWord
       {
         line--;
         GoToLine(line);
-        NextVerse();
       }
     }
 
-    public void GoToLine(ushort _line)
+    private void GoToLine(ushort _line)
     {
       line = --_line; // zero-based index
       stream.BaseStream.Seek(offsets[line], SeekOrigin.Begin);
       stream.DiscardBufferedData();
+      NextVerse();
     }
 
-    public void SubscribeView(VerseView view)
+    protected virtual void RaiseNewVerse(NewVerseArgs e)
     {
-      views.Add(view);
-    }
-
-    public void UnsubscribeView(VerseView view)
-    {
-      views.Remove(view);
-    }
-
-    private void UpdateViewers()
-    {
-      foreach (var view in views)
-        view.Update(current.Syntagms);
+      OnNewVerse?.Invoke(this, e);
     }
 
     private string ReadLine()

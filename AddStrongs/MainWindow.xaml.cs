@@ -19,7 +19,7 @@ using TheWord;
 namespace AddStrongs
 {
   /// <summary>
-  /// Interação lógica para MainWindow.xam
+  /// Logic for MainWindow.xaml
   /// </summary>
   public partial class MainWindow : Window
   {
@@ -29,22 +29,41 @@ namespace AddStrongs
     public MainWindow()
     {
       InitializeComponent();
-      VerseView1.DataSource = module1 = new BibleModule(@"C:\Temp\AnatolicBible\lxxmorph-rc.ot");
-      VerseView2.DataSource = module2 = new BibleModule(@"C:\Temp\AnatolicBible\Anatolic Bible 10-7-2017.ont");
+      VerseView1.DataSource = module1 = new BibleModule(@"C:\Temp\AnatolicBible\Anatolic Bible 10-7-2017.ont");
+      VerseView1.OnSyntagmClick += OnSyntagmClick;
+      VerseView2.DataSource = module2 = new BibleModule(@"C:\Temp\AnatolicBible\lxxmorph-rc.ot");
+      VerseView2.OnSyntagmClick += OnSyntagmClick;
+      LineTextBox.Text = "line 1";
+    }
+
+    private void OnSyntagmClick(object sender, SyntagmClickArgs e)
+    {
+      TagsTextBox.Text = e.Syntagm.AllTags;
     }
 
     private void BtnNext_Click(object sender, RoutedEventArgs e)
     {
       module1.NextVerse();
       module2.NextVerse();
-      TbLine.Text = "line " + module1.Line.ToString();
+      LineTextBox.Text = "line " + module1.Line.ToString();
     }
 
     private void BtnPrev_Click(object sender, RoutedEventArgs e)
     {
       module1.PreviousVerse();
       module2.PreviousVerse();
-      TbLine.Text = "line " + module1.Line.ToString();
+      LineTextBox.Text = "line " + module1.Line.ToString();
+    }
+
+    private void LineTextBox_KeyUp(object sender, KeyEventArgs e)
+    {
+      if (e.Key == Key.Return)
+      {
+        ushort line;
+        if (ushort.TryParse(((TextBox)sender).Text, out line))
+          module1.Line = module2.Line = line;
+        LineTextBox.Text = "line " + module1.Line.ToString();
+      }
     }
   }
 }
