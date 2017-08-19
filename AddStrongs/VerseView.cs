@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace TheWord
 {
@@ -13,8 +15,10 @@ namespace TheWord
     public Syntagm Syntagm { get; set; }
   }
 
-  public class VerseView : WrapPanel
+  public class VerseView : ScrollViewer
   {
+    TextBox editBox; // used for text-mode edit
+    WrapPanel panel;
     public SyntagmBlock Selected { get; set; }
     BibleModule dataSource;
     public BibleModule DataSource
@@ -32,7 +36,32 @@ namespace TheWord
 
     public VerseView() : base()
     {
+      VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+      Content = panel = new WrapPanel();
+      MouseDoubleClick += OnMouseDoubleClick;
+      editBox = new TextBox();
+      editBox.TextWrapping = TextWrapping.Wrap;
+      editBox.KeyUp += EditBox_KeyUp;
       //Margin = new Thickness(20);
+    }
+
+    private void OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+      if (e.ChangedButton == MouseButton.Left)
+      {
+        editBox.Text = dataSource.Current.Text;
+        Content = editBox;
+        //Keyboard.Focus(editBox);
+      }
+    }
+
+    private void EditBox_KeyUp(object sender, KeyEventArgs e)
+    {
+      if (e.Key == Key.Escape)
+      {
+        dataSource.Current.Text = editBox.Text;
+        Content = panel;
+      }
     }
 
     protected virtual void RaiseSyntagmClick(SyntagmClickArgs e)
@@ -52,7 +81,7 @@ namespace TheWord
     {
       var s = new SyntagmBlock(syntagm);
       s.OnSyntagmClick += OnSyntagmBlockClick;
-      Children.Add(s);
+      panel.Children.Add(s);
     }
 
     private void OnSyntagmBlockClick(object sender, SyntagmClickArgs e)
@@ -66,7 +95,7 @@ namespace TheWord
 
     public void Clear()
     {
-      Children.Clear();
+      panel.Children.Clear();
     }
   }
 }

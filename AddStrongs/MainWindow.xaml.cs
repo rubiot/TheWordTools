@@ -31,9 +31,14 @@ namespace AddStrongs
       InitializeComponent();
       VerseView1.DataSource = module1 = new BibleModule(@"C:\Temp\AnatolicBible\Anatolic Bible 10-7-2017.ont");
       VerseView1.OnSyntagmClick += OnSyntagmClick;
+      module1.OnNewVerse += OnNewVerse;
       VerseView2.DataSource = module2 = new BibleModule(@"C:\Temp\AnatolicBible\lxxmorph-rc.ot");
       VerseView2.OnSyntagmClick += OnSyntagmClick;
-      LineTextBox.Text = "line 1";
+    }
+
+    private void OnNewVerse(object sender, NewVerseArgs e)
+    {
+      LineTextBox.Text = $"line {((BibleModule)sender).Line}";
     }
 
     private void OnSyntagmClick(object sender, SyntagmClickArgs e)
@@ -45,14 +50,12 @@ namespace AddStrongs
     {
       module1.NextVerse();
       module2.NextVerse();
-      LineTextBox.Text = "line " + module1.Line.ToString();
     }
 
     private void BtnPrev_Click(object sender, RoutedEventArgs e)
     {
       module1.PreviousVerse();
       module2.PreviousVerse();
-      LineTextBox.Text = "line " + module1.Line.ToString();
     }
 
     private void LineTextBox_KeyUp(object sender, KeyEventArgs e)
@@ -62,8 +65,13 @@ namespace AddStrongs
         ushort line;
         if (ushort.TryParse(((TextBox)sender).Text, out line))
           module1.Line = module2.Line = line;
-        LineTextBox.Text = "line " + module1.Line.ToString();
       }
+    }
+
+    private void TagsTextBox_KeyUp(object sender, KeyEventArgs e)
+    {
+      if (e.Key == Key.Return)
+        VerseView1.Selected.Syntagm.ReplaceTags(TagsTextBox.Text);
     }
   }
 }

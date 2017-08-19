@@ -27,7 +27,7 @@ namespace TheWord
             yield return new Syntagm() { Text = tokenList[i].Value, Displayable = false };
             break;
           case TokenType.Space:
-            yield return new Syntagm() { Text = tokenList[i].Value };
+            yield return new Syntagm() { Text = tokenList[i].Value, Selectable = false };
             break;
           case TokenType.Word:
             Syntagm syntagm = new Syntagm() { Text = tokenList[i].Value };

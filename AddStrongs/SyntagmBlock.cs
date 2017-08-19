@@ -8,8 +8,9 @@ namespace TheWord
 {
   public class SyntagmBlock : TextBlock
   {
-    Syntagm syntagm;
     Run run;
+    Syntagm syntagm;
+    public Syntagm Syntagm { get => syntagm; set => syntagm = value; }
     public event EventHandler<SyntagmClickArgs> OnSyntagmClick;
 
     public SyntagmBlock(Syntagm _syntagm) : base()
@@ -23,23 +24,32 @@ namespace TheWord
     {
       Syntagm syntagm = (Syntagm)sender;
       run.Text = syntagm.Text;
-      run.ToolTip = String.Join("", syntagm.AllTags);
+      SetSyntagmStyle();
     }
 
     private void MakeSyntagmRun()
     {
       run = new Run(syntagm.Text) { Focusable = true, FontSize = 16 };
-      run.MouseEnter        += Syntagm_MouseEnter;
-      run.MouseLeave        += Syntagm_MouseLeave;
-      run.MouseLeftButtonUp += Syntagm_MouseLeftButtonUp;
-      if (syntagm.AllTags.Length > 0)
-        run.ToolTip = String.Join("", syntagm.AllTags);
+      if (syntagm.Selectable)
+      {
+        run.MouseEnter += Syntagm_MouseEnter;
+        run.MouseLeave += Syntagm_MouseLeave;
+        run.MouseLeftButtonUp += Syntagm_MouseLeftButtonUp;
+      }
+      SetSyntagmStyle();
       Inlines.Add(run);
+    }
+
+    private void SetSyntagmStyle()
+    {
+      if (syntagm.Tags.Count > 0)
+        run.ToolTip = syntagm.AllTags;
+      run.Foreground = syntagm.Tags.Count > 0 ? Brushes.Black : Brushes.Gray;
     }
 
     public void Select()
     {
-      run.Background = Brushes.Gray;
+      run.Background = Brushes.Yellow;
     }
 
     public void Unselect()
@@ -64,7 +74,7 @@ namespace TheWord
 
     private void Syntagm_MouseLeave(object sender, MouseEventArgs e)
     {
-      ((Run)sender).Foreground = Brushes.Black;
+      SetSyntagmStyle();
     }
   }
 }

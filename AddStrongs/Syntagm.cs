@@ -7,6 +7,7 @@ namespace TheWord
   {
     private string text;
     private bool displayable = true;
+    private bool selectable = true;
     private List<string> tags = new List<string>();
 
     public string Text
@@ -20,6 +21,7 @@ namespace TheWord
     public List<string> Tags { get => tags; }
     public string AllTags    { get => string.Join("", tags);  }
     public bool Displayable  { get => displayable; set => displayable = value; }
+    public bool Selectable   { get => selectable; set => selectable = value; }
 
     public event EventHandler OnChange;
 
@@ -41,6 +43,13 @@ namespace TheWord
         tags.Remove(tag);
         RaiseSytagmChanged();
       }
+    }
+
+    public void ReplaceTags(string new_tags)
+    {
+      if (tags.Count > 0)
+        tags.Clear();
+      AddTag(new_tags);
     }
 
     public void ClearTags()

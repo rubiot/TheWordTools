@@ -17,36 +17,39 @@ namespace TheWord
 
   public class Verse
   {
+    BibleModule parent;
     Parser parser = new Parser();
+    List<Syntagm> syntagms = new List<Syntagm>();
     public string Text
     {
       get
       {
         var result = new StringBuilder();
-        foreach (var syntagm in Syntagms)
+        foreach (var syntagm in syntagms)
         {
           result.Append(syntagm.Text);
-          result.Append(String.Join("", syntagm.AllTags));
+          result.Append(syntagm.AllTags);
         }
         return result.ToString();
       }
-      set => parser.Parse(value);
-    }
-
-    public IEnumerable<Syntagm> Syntagms
-    {
-      get => parser.GetSyntagms();
-    }
-
-    private string GetText()
-    {
-      var result = new StringBuilder();
-      foreach (var syntagm in parser.GetSyntagms())
+      set
       {
-        result.Append(syntagm.Text);
-        result.Append(syntagm.AllTags);
+        parser.Parse(value);
+        syntagms.Clear();
+        foreach (var s in parser.GetSyntagms())
+          syntagms.Add(s);
+        parent.RaiseNewVerse(new NewVerseArgs(Syntagms));
       }
-      return result.ToString();
+    }
+
+    public List<Syntagm> Syntagms
+    {
+      get => syntagms;
+    }
+
+    public Verse(BibleModule _parent)
+    {
+      parent = _parent;
     }
   }
 
@@ -58,7 +61,7 @@ namespace TheWord
     List<VerseView> views = new List<VerseView>();
     StreamReader stream;
 
-    Verse current = new Verse();
+    Verse current;
     public Verse Current { get => current; }
 
     ushort line = 0;
@@ -70,6 +73,7 @@ namespace TheWord
     {
       if (!File.Exists(_file))
         throw new FileNotFoundException("File not found", _file);
+      current = new Verse(this);
       stream = new StreamReader(_file);
       file = _file;
       IndexModule();
@@ -162,7 +166,7 @@ namespace TheWord
       NextVerse();
     }
 
-    protected virtual void RaiseNewVerse(NewVerseArgs e)
+    public virtual void RaiseNewVerse(NewVerseArgs e)
     {
       OnNewVerse?.Invoke(this, e);
     }
