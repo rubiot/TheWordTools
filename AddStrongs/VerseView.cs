@@ -17,7 +17,19 @@ namespace TheWord
 
   class SyntagmContextMenu : ContextMenu
   {
-    public Syntagm Syntagm { get; set; }
+    TextBox tagsTextBox = new TextBox();
+    private Syntagm syntagm;
+    public Syntagm Syntagm
+    {
+      get => syntagm;
+      set
+      {
+        syntagm = value;
+        tagsTextBox.Text = value.AllTags;
+        if (tagsTextBox.Text.Length == 0)
+          tagsTextBox.Text = "<no tags>";
+      }
+    }
 
     public SyntagmContextMenu()
     {
@@ -30,6 +42,19 @@ namespace TheWord
       paste.Header = "Paste tags";
       paste.Click += PasteTagsClick;
       Items.Add(paste);
+
+      var tags = new MenuItem();
+      tags.Header = tagsTextBox;
+      tags.Focusable = true;
+      Items.Add(tags);
+
+      tagsTextBox.KeyDown += TagsChange;
+    }
+
+    private void TagsChange(object sender, KeyEventArgs e)
+    {
+      if (e.Key == Key.Return)
+        Syntagm?.ReplaceTags((sender as TextBox).Text);
     }
 
     private void PasteTagsClick(object sender, RoutedEventArgs e)
