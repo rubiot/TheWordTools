@@ -54,6 +54,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="BibleIndex.cs" />
     <Compile Include="TheWordAPI.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Properties\Tokenizer.cs" />

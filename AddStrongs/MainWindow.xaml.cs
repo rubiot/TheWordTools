@@ -11,6 +11,7 @@ namespace AddStrongs
   /// </summary>
   public partial class MainWindow : Window
   {
+    BibleIndex Index = new BibleIndex();
     BibleModule module1;
     BibleModule module2;
 
@@ -34,7 +35,11 @@ namespace AddStrongs
 
     private void OnNewVerse(object sender, NewVerseArgs e)
     {
-      LineTextBox.Text = $"line {((BibleModule)sender).Line}";
+      BibleModule bible = sender as BibleModule;
+
+      Index.GoTo(bible.Line);
+      LineTextBox.Text = $"{Index.Reference}, line {Index.Line}";
+      TheWordAPI.SynchronizeRef(Index.Book, Index.Chapter, Index.Verse);
     }
 
     private void OnSyntagmClick(object sender, SyntagmEventArgs e)
@@ -46,7 +51,6 @@ namespace AddStrongs
     {
       module1.NextVerse();
       module2.NextVerse();
-      TheWordAPI.SynchronizeRef(42, 3, 16);
     }
 
     private void BtnPrev_Click(object sender, RoutedEventArgs e)

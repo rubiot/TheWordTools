@@ -64,6 +64,7 @@ namespace TheWord
 
     private void CopyTagsClick(object sender, RoutedEventArgs e)
     {
+      // TODO: Operation fails if TheWord is open
       Clipboard.SetText(Syntagm?.AllTags);
     }
   }
