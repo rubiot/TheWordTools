@@ -17,16 +17,18 @@ namespace TheWord
   public class BibleModule
   {
     string file;
-    const ushort maxLine = 32767;
-    long[] offsets = new long[maxLine];
+    string lineBuffer = "";
+    const int maxLine = 32767;
+    long[] offsets = new long[maxLine + 1];
     List<VerseView> views = new List<VerseView>();
     StreamReader stream;
+    Dictionary<int, string> changes = new Dictionary<int, string>();
 
     Verse current;
     public Verse Current { get => current; }
 
-    ushort line = 0;
-    public ushort Line { get => line; set => GoToLine(value); }
+    int line = 0;
+    public int Line { get => line; set => GoToLine(value); }
 
     public event EventHandler<NewVerseArgs> OnNewVerse;
 
@@ -34,9 +36,10 @@ namespace TheWord
     {
       if (!File.Exists(_file))
         throw new FileNotFoundException("File not found", _file);
+
+      file    = _file;
       current = new Verse(this);
-      stream = new StreamReader(_file);
-      file = _file;
+      stream  = new StreamReader(file);
       IndexModule();
       Line = 1;
     }
@@ -93,7 +96,7 @@ namespace TheWord
       {
         //offsets[line++] = stream.BaseStream.Position; fails to consider buffers!!
         //                                              StreamReader should implement its own Position
-        offsets[line++] = GetActualPosition(stream);
+        offsets[++line] = GetActualPosition(stream);
         stream.ReadLine();
       }
       stream.BaseStream.Seek(0, SeekOrigin.Begin);
@@ -104,27 +107,35 @@ namespace TheWord
     public void NextVerse()
     {
       if (line < maxLine)
-      {
-        current.Text = ReadLine();
-        RaiseNewVerse(new NewVerseArgs(current.Syntagms));
-      }
+        GoToLine(line + 1);
+    }
+
+    private void SaveLineChanges()
+    {
+      if (lineBuffer != current.Text)
+        changes[line] = current.Text;
+    }
+
+    private void ReadVerse()
+    {
+      current.Text = lineBuffer = changes.ContainsKey(line) ? changes[line]
+                                                            : ReadLine();
+      RaiseNewVerse(new NewVerseArgs(current.Syntagms));
     }
 
     public void PreviousVerse()
     {
       if (line > 1)
-      {
-        line--;
-        GoToLine(line);
-      }
+        GoToLine(line - 1);
     }
 
-    private void GoToLine(ushort _line)
+    private void GoToLine(int _line)
     {
-      line = --_line; // zero-based index
+      SaveLineChanges();
+      line = _line;
       stream.BaseStream.Seek(offsets[line], SeekOrigin.Begin);
       stream.DiscardBufferedData();
-      NextVerse();
+      ReadVerse();
     }
 
     public virtual void RaiseNewVerse(NewVerseArgs e)
@@ -136,7 +147,6 @@ namespace TheWord
     {
       if (stream.Peek() == -1)
         throw new EndOfStreamException("There is no more verses");
-      line++;
       return stream.ReadLine();
     }
   }
