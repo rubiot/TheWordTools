@@ -50,6 +50,7 @@ namespace AddStrongs
     {
       module1.NextVerse();
       module2.NextVerse();
+      TheWordAPI.SynchronizeRef(42, 3, 16);
     }
 
     private void BtnPrev_Click(object sender, RoutedEventArgs e)
