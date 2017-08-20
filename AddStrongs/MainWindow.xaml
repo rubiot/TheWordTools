@@ -5,8 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TheWord"
         mc:Ignorable="d"
-        Title="AddStrongs Bible Tool" Height="350" Width="525" WindowStartupLocation="CenterScreen" Closing="WndMain_Closing">
-    <Grid>
+        Title="AddStrongs Bible Tool" Height="300.488" Width="525" WindowStartupLocation="CenterScreen" Closing="WndMain_Closing">
+    <Grid Height="321" Margin="0,0,0.4,-0.2" VerticalAlignment="Top">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="388*"/>
             <ColumnDefinition Width="131*"/>
@@ -15,9 +15,8 @@
         <local:VerseView x:Name="VerseView1" HorizontalAlignment="Left" Height="100" Margin="10,10,0,0" VerticalAlignment="Top" Width="498" Background="{DynamicResource {x:Static SystemColors.InfoBrushKey}}" Grid.ColumnSpan="2"/>
         <local:VerseView x:Name="VerseView2" HorizontalAlignment="Left" Height="100" Margin="10,126,0,0" VerticalAlignment="Top" Width="498" Background="{DynamicResource {x:Static SystemColors.InfoBrushKey}}" Grid.ColumnSpan="2"/>
         <Button x:Name="BtnPrev" Content="Previous" HorizontalAlignment="Left" Margin="10,231,0,0" VerticalAlignment="Top" Width="75" Click="BtnPrev_Click"/>
-        <TextBox x:Name="LineTextBox" HorizontalAlignment="Left" Height="23" Margin="10,255,0,0" TextWrapping="Wrap" Text="Enter line here..." VerticalAlignment="Top" Width="175" KeyUp="LineTextBox_KeyUp"/>
-        <TextBox x:Name="TagsTextBox" HorizontalAlignment="Left" Height="23" Margin="206,231,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="302" KeyUp="TagsTextBox_KeyUp" Grid.ColumnSpan="2"/>
-        <Button x:Name="BtnSave" Content="Save" HorizontalAlignment="Left" Margin="206,259,0,0" VerticalAlignment="Top" Width="75" Click="BtnSave_Click" IsEnabled="False"/>
+        <TextBox x:Name="LineTextBox" HorizontalAlignment="Left" Height="23" Margin="308,231,0,0" TextWrapping="Wrap" Text="Enter line here..." VerticalAlignment="Top" Width="175" KeyUp="LineTextBox_KeyUp" Grid.ColumnSpan="2"/>
+        <Button x:Name="BtnSave" Content="Save" HorizontalAlignment="Left" Margin="218,231,0,0" VerticalAlignment="Top" Width="75" Click="BtnSave_Click" IsEnabled="False" RenderTransformOrigin="1.263,0.755"/>
 
     </Grid>
 </Window>
