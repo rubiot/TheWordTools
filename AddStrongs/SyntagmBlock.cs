@@ -11,7 +11,8 @@ namespace TheWord
     Run run;
     Syntagm syntagm;
     public Syntagm Syntagm { get => syntagm; set => syntagm = value; }
-    public event EventHandler<SyntagmClickArgs> OnSyntagmClick;
+    public event EventHandler<SyntagmEventArgs> OnSyntagmLeftClick;
+    public event EventHandler<SyntagmEventArgs> OnSyntagmRightClick;
 
     public SyntagmBlock(Syntagm _syntagm) : base()
     {
@@ -32,12 +33,18 @@ namespace TheWord
       run = new Run(syntagm.Text) { Focusable = true, FontSize = 16 };
       if (syntagm.Selectable)
       {
-        run.MouseEnter += Syntagm_MouseEnter;
-        run.MouseLeave += Syntagm_MouseLeave;
-        run.MouseLeftButtonUp += Syntagm_MouseLeftButtonUp;
+        run.MouseEnter           += Syntagm_MouseEnter;
+        run.MouseLeave           += Syntagm_MouseLeave;
+        run.MouseLeftButtonUp    += Syntagm_MouseLeftButtonUp;
+        run.MouseRightButtonDown += Syntagm_MouseRightButtonDown;
       }
       SetSyntagmStyle();
       Inlines.Add(run);
+    }
+
+    private void Syntagm_MouseRightButtonDown(object sender, MouseButtonEventArgs e)
+    {
+      RaiseSyntagmRightClick(new SyntagmEventArgs(syntagm));
     }
 
     private void SetSyntagmStyle()
@@ -54,17 +61,22 @@ namespace TheWord
 
     public void Unselect()
     {
-      run.Background = Brushes.LightYellow; //SystemColors.InfoBrushKey ??
+      run.Background = Brushes.LightYellow;
     }
 
-    protected virtual void RaiseSyntagmClick(SyntagmClickArgs e)
+    protected virtual void RaiseSyntagmLeftClick(SyntagmEventArgs e)
     {
-      OnSyntagmClick?.Invoke(this, e);
+      OnSyntagmLeftClick?.Invoke(this, e);
+    }
+
+    protected virtual void RaiseSyntagmRightClick(SyntagmEventArgs e)
+    {
+      OnSyntagmRightClick?.Invoke(this, e);
     }
 
     private void Syntagm_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
-      RaiseSyntagmClick(new SyntagmClickArgs(syntagm));
+      RaiseSyntagmLeftClick(new SyntagmEventArgs(syntagm));
     }
 
     private void Syntagm_MouseEnter(object sender, MouseEventArgs e)

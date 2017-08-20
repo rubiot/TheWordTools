@@ -6,17 +6,46 @@ using System.Windows.Input;
 
 namespace TheWord
 {
-  public class SyntagmClickArgs : EventArgs
+  public class SyntagmEventArgs : EventArgs
   {
-    public SyntagmClickArgs(Syntagm s)
+    public SyntagmEventArgs(Syntagm s)
     {
       Syntagm = s;
     }
     public Syntagm Syntagm { get; set; }
   }
 
+  class SyntagmContextMenu : ContextMenu
+  {
+    public Syntagm Syntagm { get; set; }
+
+    public SyntagmContextMenu()
+    {
+      var copy = new MenuItem();
+      copy.Header = "Copy tags";
+      copy.Click += CopyTagsClick;
+      Items.Add(copy);
+
+      var paste = new MenuItem();
+      paste.Header = "Paste tags";
+      paste.Click += PasteTagsClick;
+      Items.Add(paste);
+    }
+
+    private void PasteTagsClick(object sender, RoutedEventArgs e)
+    {
+      Syntagm?.ReplaceTags(Clipboard.GetText());
+    }
+
+    private void CopyTagsClick(object sender, RoutedEventArgs e)
+    {
+      Clipboard.SetText(Syntagm?.AllTags);
+    }
+  }
+
   public class VerseView : ScrollViewer
   {
+    SyntagmContextMenu contextMenu = new SyntagmContextMenu();
     TextBox editBox; // used for text-mode edit
     WrapPanel panel;
     public SyntagmBlock Selected { get; set; }
@@ -33,13 +62,14 @@ namespace TheWord
       }
     }
 
-    public event EventHandler<SyntagmClickArgs> OnSyntagmClick;
+    public event EventHandler<SyntagmEventArgs> OnSyntagmClick;
 
     public VerseView() : base()
     {
       VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
       Content = panel = new WrapPanel();
       MouseDoubleClick += OnMouseDoubleClick;
+
       editBox = new TextBox
       {
         TextWrapping = TextWrapping.Wrap
@@ -67,7 +97,7 @@ namespace TheWord
       }
     }
 
-    protected virtual void RaiseSyntagmClick(SyntagmClickArgs e)
+    protected virtual void RaiseSyntagmClick(SyntagmEventArgs e)
     {
       OnSyntagmClick?.Invoke(this, e);
     }
@@ -83,11 +113,18 @@ namespace TheWord
     private void AddSyntagm(Syntagm syntagm)
     {
       var s = new SyntagmBlock(syntagm);
-      s.OnSyntagmClick += OnSyntagmBlockClick;
+      s.OnSyntagmLeftClick  += OnSyntagmBlockLeftClick;
+      s.OnSyntagmRightClick += OnSyntagmBlockRightClick;
+      s.ContextMenu = contextMenu;
       panel.Children.Add(s);
     }
 
-    private void OnSyntagmBlockClick(object sender, SyntagmClickArgs e)
+    private void OnSyntagmBlockRightClick(object sender, SyntagmEventArgs e)
+    {
+      contextMenu.Syntagm = ((SyntagmBlock)sender).Syntagm;
+    }
+
+    private void OnSyntagmBlockLeftClick(object sender, SyntagmEventArgs e)
     {
       SyntagmBlock syntagm = (SyntagmBlock)sender;
       Selected?.Unselect();

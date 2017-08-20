@@ -35,7 +35,7 @@ namespace AddStrongs
       LineTextBox.Text = $"line {((BibleModule)sender).Line}";
     }
 
-    private void OnSyntagmClick(object sender, SyntagmClickArgs e)
+    private void OnSyntagmClick(object sender, SyntagmEventArgs e)
     {
       TagsTextBox.Text = e.Syntagm.AllTags;
     }

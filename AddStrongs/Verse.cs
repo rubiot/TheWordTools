@@ -47,8 +47,11 @@ namespace TheWord
 
     public void ChangeText(string text)
     {
-      Text = text;
-      RaiseOnChange(new NewVerseArgs(syntagms));
+      if (text != Text)
+      {
+        Text = text;
+        RaiseOnChange(new NewVerseArgs(syntagms));
+      }
     }
 
     private void OnSyntagmChange(object sender, EventArgs e)
