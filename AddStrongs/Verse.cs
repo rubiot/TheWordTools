@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text;
 
 namespace TheWord
@@ -25,19 +26,39 @@ namespace TheWord
         parser.Parse(value);
         syntagms.Clear();
         foreach (var s in parser.GetSyntagms())
+        {
+          s.OnChange += OnSyntagmChange;
           syntagms.Add(s);
-        parent.RaiseNewVerse(new NewVerseArgs(Syntagms));
+        }
       }
     }
-
-    public List<Syntagm> Syntagms
-    {
-      get => syntagms;
-    }
+    public List<Syntagm> Syntagms { get => syntagms; }
+    public event EventHandler<NewVerseArgs> OnChange;
 
     public Verse(BibleModule _parent)
     {
       parent = _parent;
+    }
+
+    public void Reset(string text)
+    {
+      Text = text;
+    }
+
+    public void ChangeText(string text)
+    {
+      Text = text;
+      RaiseOnChange(new NewVerseArgs(syntagms));
+    }
+
+    private void OnSyntagmChange(object sender, EventArgs e)
+    {
+      RaiseOnChange(new NewVerseArgs(syntagms));
+    }
+
+    protected virtual void RaiseOnChange(NewVerseArgs e)
+    {
+      OnChange?.Invoke(this, e);
     }
   }
 }

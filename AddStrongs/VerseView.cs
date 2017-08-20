@@ -28,6 +28,7 @@ namespace TheWord
       {
         dataSource = value;
         dataSource.OnNewVerse += OnNewVerse;
+        dataSource.OnChange   += OnNewVerse;
         OnNewVerse(this, new NewVerseArgs(dataSource.Current.Syntagms));
       }
     }
@@ -39,8 +40,10 @@ namespace TheWord
       VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
       Content = panel = new WrapPanel();
       MouseDoubleClick += OnMouseDoubleClick;
-      editBox = new TextBox();
-      editBox.TextWrapping = TextWrapping.Wrap;
+      editBox = new TextBox
+      {
+        TextWrapping = TextWrapping.Wrap
+      };
       editBox.KeyUp += EditBox_KeyUp;
       //Margin = new Thickness(20);
     }
@@ -59,7 +62,7 @@ namespace TheWord
     {
       if (e.Key == Key.Escape)
       {
-        dataSource.Current.Text = editBox.Text;
+        dataSource.Current.ChangeText(editBox.Text);
         Content = panel;
       }
     }

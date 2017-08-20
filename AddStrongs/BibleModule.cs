@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace TheWord
 {
@@ -17,31 +18,48 @@ namespace TheWord
   public class BibleModule
   {
     string file;
-    string lineBuffer = "";
     const int maxLine = 32767;
     long[] offsets = new long[maxLine + 1];
-    List<VerseView> views = new List<VerseView>();
     StreamReader stream;
     Dictionary<int, string> changes = new Dictionary<int, string>();
-
     Verse current;
     public Verse Current { get => current; }
-
-    int line = 0;
+    int line = 1;
     public int Line { get => line; set => GoToLine(value); }
+    public bool Modified { get; set; }
 
     public event EventHandler<NewVerseArgs> OnNewVerse;
+    public event EventHandler<NewVerseArgs> OnChange;
 
     public BibleModule(string _file)
     {
       if (!File.Exists(_file))
         throw new FileNotFoundException("File not found", _file);
 
-      file    = _file;
       current = new Verse(this);
-      stream  = new StreamReader(file);
+      current.OnChange += OnVerseChange;
+      Open(_file);
+    }
+
+    private void OnVerseChange(object sender, NewVerseArgs e)
+    {
+      Modified = true;
+      changes[line] = current.Text;
+      RaiseOnChange(e);
+    }
+
+    protected virtual void RaiseOnChange(NewVerseArgs e)
+    {
+      OnChange?.Invoke(this, e);
+    }
+
+    private void Open(string _file)
+    {
+      file = _file;
+      stream = new StreamReader(file);
       IndexModule();
-      Line = 1;
+      changes.Clear();
+      Line = line;
     }
 
     static public long GetActualPosition(StreamReader reader)
@@ -92,16 +110,16 @@ namespace TheWord
 
     private void IndexModule()
     {
-      while (stream.Peek() > -1)
-      {
-        //offsets[line++] = stream.BaseStream.Position; fails to consider buffers!!
-        //                                              StreamReader should implement its own Position
-        offsets[++line] = GetActualPosition(stream);
-        stream.ReadLine();
-      }
+      int _line = 0;
       stream.BaseStream.Seek(0, SeekOrigin.Begin);
       stream.DiscardBufferedData();
-      line = 0;
+      while (stream.Peek() > -1)
+      {
+        //offsets[line++] = stream.Position; fails to consider buffers!!
+        //                                   StreamReader should implement its own Position
+        offsets[++_line] = GetActualPosition(stream);
+        stream.ReadLine();
+      }
     }
 
     public void NextVerse()
@@ -110,16 +128,9 @@ namespace TheWord
         GoToLine(line + 1);
     }
 
-    private void SaveLineChanges()
-    {
-      if (lineBuffer != current.Text)
-        changes[line] = current.Text;
-    }
-
     private void ReadVerse()
     {
-      current.Text = lineBuffer = changes.ContainsKey(line) ? changes[line]
-                                                            : ReadLine();
+      current.Reset(changes.ContainsKey(line) ? changes[line] : ReadLine());
       RaiseNewVerse(new NewVerseArgs(current.Syntagms));
     }
 
@@ -131,11 +142,40 @@ namespace TheWord
 
     private void GoToLine(int _line)
     {
-      SaveLineChanges();
       line = _line;
       stream.BaseStream.Seek(offsets[line], SeekOrigin.Begin);
       stream.DiscardBufferedData();
       ReadVerse();
+    }
+
+    public void Save()
+    {
+      if (!Modified)
+        return;
+
+      string tmpFile = $"{file}.saving";
+      using (var tmpModule = new StreamWriter(tmpFile, false, new UTF8Encoding(true)))
+      {
+        stream.BaseStream.Seek(0, SeekOrigin.Begin);
+        stream.DiscardBufferedData();
+        int _line = 0;
+        while (stream.Peek() > -1 && ++_line < maxLine)
+        {
+          string buffer = stream.ReadLine();
+          if (changes.ContainsKey(_line))
+            buffer = changes[_line];
+          tmpModule.WriteLine(buffer);
+        }
+      }
+
+      stream.Dispose();
+
+      if (File.Exists(file))
+        File.Delete(file);
+      File.Move(tmpFile, file);
+
+      Open(file);
+      Modified = false;
     }
 
     public virtual void RaiseNewVerse(NewVerseArgs e)
