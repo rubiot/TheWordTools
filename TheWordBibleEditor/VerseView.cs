@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Threading;
 
 namespace TheWord
 {
@@ -97,7 +97,6 @@ namespace TheWord
 
       editBox = new TextBox { TextWrapping = TextWrapping.Wrap };
       editBox.KeyUp += EditBox_KeyUp;
-      //Margin = new Thickness(20);
     }
 
     private void OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
@@ -106,7 +105,7 @@ namespace TheWord
       {
         editBox.Text = dataSource.Current.Text;
         Content = editBox;
-        //Keyboard.Focus(editBox);
+        Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(delegate () { editBox.Focus(); }));
       }
     }
 
