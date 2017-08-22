@@ -48,7 +48,14 @@ namespace TheWord
       tags.Focusable = true;
       Items.Add(tags);
 
+      Opened += OnOpened;
       tagsTextBox.KeyDown += TagsChange;
+    }
+
+    private void OnOpened(object sender, RoutedEventArgs e)
+    {
+      Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(delegate () { tagsTextBox.Focus(); }));
+      tagsTextBox.SelectAll();
     }
 
     private void TagsChange(object sender, KeyEventArgs e)
