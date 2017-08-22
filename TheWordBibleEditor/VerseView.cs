@@ -95,10 +95,7 @@ namespace TheWord
       Content = panel = new WrapPanel();
       MouseDoubleClick += OnMouseDoubleClick;
 
-      editBox = new TextBox
-      {
-        TextWrapping = TextWrapping.Wrap
-      };
+      editBox = new TextBox { TextWrapping = TextWrapping.Wrap };
       editBox.KeyUp += EditBox_KeyUp;
       //Margin = new Thickness(20);
     }

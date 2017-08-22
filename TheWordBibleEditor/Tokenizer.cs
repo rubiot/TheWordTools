@@ -43,7 +43,7 @@ namespace TheWord
       foreach (var t in tokenDefinitions)
       {
         m = t.TryMatch(Text, index);
-        if (!m.Success || m.Index > index)
+        if (!m.Success || m.Index > index) // TryMatch only matches ^ when index == 0
           continue;
 
         index += m.Length;
