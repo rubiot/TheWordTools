@@ -6,7 +6,7 @@ namespace TheWord
 {
   class Parser
   {
-    static TokenType[] TagTokens = new[] { TokenType.Strong, TokenType.Morpho };
+    static TokenType[] TagTokens = new[] { TokenType.Strong, TokenType.Morpho, TokenType.ReviewTag };
 
     Tokenizer tokenizer = new Tokenizer();
 

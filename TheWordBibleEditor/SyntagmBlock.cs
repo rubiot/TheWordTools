@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -52,6 +53,7 @@ namespace TheWord
       if (syntagm.Tags.Count > 0)
         run.ToolTip = syntagm.AllTags;
       run.Foreground = syntagm.Tags.Count > 0 ? Brushes.Black : Brushes.Gray;
+      run.FontStyle  = syntagm.HasTag("<?>") ? FontStyles.Italic : FontStyles.Normal;
     }
 
     public void Select()

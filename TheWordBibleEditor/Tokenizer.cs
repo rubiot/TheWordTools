@@ -10,6 +10,7 @@ namespace TheWord
     Word,
     Strong,
     Morpho,
+    ReviewTag, // <?> indicates that the word should be revised
     Meta // irrelevant tags
   }
 
@@ -61,6 +62,7 @@ namespace TheWord
     {
       tokenDefinitions.Add(new TokenDefinition(TokenType.Morpho, "<WT[^> ]+( l(emma)?=\"[^\"]+\")>"));
       tokenDefinitions.Add(new TokenDefinition(TokenType.Strong, "<W[HG][^>]+>"));
+      tokenDefinitions.Add(new TokenDefinition(TokenType.ReviewTag, @"<\?>"));
       tokenDefinitions.Add(new TokenDefinition(TokenType.Meta,   @"<RF.*?<Rf>|<TS\d*>.*?<Ts>|<[^>]+>"));
       tokenDefinitions.Add(new TokenDefinition(TokenType.Space,  @"[\s.,!?:;·—]+"));
       tokenDefinitions.Add(new TokenDefinition(TokenType.Word,   "[^< .,!?:;·—]+"));

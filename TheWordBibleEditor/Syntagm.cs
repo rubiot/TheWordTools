@@ -45,10 +45,16 @@ namespace TheWord
 
     public void ReplaceTags(string new_tags)
     {
+      if (new_tags == AllTags)
+        return;
+
       if (tags.Count > 0)
         tags.Clear();
+
       // TODO: Parse tags and add them split
-      AddTag(new_tags);
+      if (new_tags.Length > 0)
+        AddTag(new_tags);
+
       RaiseSytagmChanged();
     }
 
@@ -59,6 +65,14 @@ namespace TheWord
         tags.Clear();
         RaiseSytagmChanged();
       }
+    }
+
+    public bool HasTag(string tag)
+    {
+      foreach (var t in tags)
+        if (t.Contains(tag))
+          return true;
+      return false;
     }
   }
 }
