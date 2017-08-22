@@ -1,16 +1,88 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Documents;
 
 namespace TheWord
 {
-  class BibleIndex
+  public class BibleNavigator : ScrollViewer
   {
-    static short[] ChaptersPerBook = new short[67]
+    StackPanel panel = new StackPanel();
+    public BibleIndex Index { get; set; }
+
+    public BibleNavigator()
+    {
+      Content = panel;
+      for (short b = 1; b <= 66 ; b++)
+      {
+        var e = new Expander();
+        e.Header = new TextBlock() { Text = BibleIndex.BookNames[b] };
+        e.Content = MakeChapterGrid(b);
+        panel.Children.Add(e);
+      }
+    }
+
+    private object MakeChapterGrid(short book)
+    {
+      var grid = new Grid();
+      var chapters = BibleIndex.ChaptersPerBook[book];
+
+      int columns = chapters < 10 ? chapters : 10;
+      for (int i = 0; i < columns; i++)
+        grid.ColumnDefinitions.Add(new ColumnDefinition());
+
+      int rows = (int)Math.Ceiling(chapters / 10.0);
+      for (int i = 0; i < rows; i++)
+        grid.RowDefinitions.Add(new RowDefinition());
+
+      for (int i = 0; i < chapters; i++)
+      {
+        var button = new Button();
+        button.Content = i + 1;
+        button.Tag = book;
+        button.Click += OnChapterClick;
+        Grid.SetColumn(button, i % 10);
+        Grid.SetRow(button, i / 10);
+        grid.Children.Add(button);
+      }
+
+      return grid;
+    }
+
+    private void OnChapterClick(object sender, RoutedEventArgs e)
+    {
+      Button btn = sender as Button;
+      short book = (short)btn.Tag;
+      short chapter = short.Parse(btn.Content.ToString());
+      Index.GoTo(book, chapter, 1);
+    }
+  }
+
+  public class BibleIndex
+  {
+    public static short[] ChaptersPerBook  = new short[67]
     {
       0,50,40,27,36,34,24,21,4,31,24,22,25,29,36,10,13,10,42,150,31,12,8,66,
       52,5,48,12,14,3,9,1,4,7,3,3,3,2,14,4,28,16,24,21,28,16,16,13,6,6,4,4,
       5,3,6,4,3,1,13,5,5,3,5,1,1,1,22
     };
-    static string[] BookNames = new string[67]
+    public static string[] BookNames       = new string[67]
+    {
+      "____", "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
+      "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings",
+      "2 Kings", "1 Chronicles", "2 Chronicles", "Ezra", "Nehemiah",
+      "Esther", "Job", "Psalms", "Proverbs", "Ecclesiastes", "Song of Solomon",
+      "Isaiah", "Jeremiah", "Lamentations", "Ezekiel", "Daniel", "Hosea",
+      "Joel", "Amos", "Obadiah", "Jonah", "Micah", "Nahum", "Habakkuk",
+      "Zephaniah", "Haggai", "Zechariah", "Malachi", "Matthew", "Mark",
+      "Luke", "John", "Acts", "Romans", "1 Corinthians", "2 Corinthians",
+      "Galatians", "Ephesians", "Philippians", "Colossians", "1 Thessalonians",
+      "2 Thessalonians", "1 Timothy", "2 Timothy", "Titus", "Philemon",
+      "Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3John",
+      "Jude", "Revelation"
+    };
+    public static string[] BookAbbrevs     = new string[67]
     {
       "____", "Gen", "Exod","Lev", "Num",   "Deut",  "Josh", "Judg",
       "Ruth", "1Sam","2Sam","1Kgs","2Kgs",  "1Chr",  "2Chr", "Ezra",
@@ -22,7 +94,7 @@ namespace TheWord
       "Titus","Phlm","Heb", "Jas", "1Pet",  "2Pet",  "1John","2John",
       "3John","Jude","Rev"
     };
-    static short[] VersesPerChapter = new short[1190]
+    public static short[] VersesPerChapter = new short[1190]
     {
       0,31,25,24,26,32,22,24,22,29,32,32,20,18,24,21,16,27,33,38,18,34,24,20,
       67,34,35,46,22,35,43,55,32,20,31,29,43,36,30,23,23,57,38,34,34,28,34,
@@ -91,20 +163,33 @@ namespace TheWord
     Dictionary<string, int> refIndex = new Dictionary<string, int>();
 
     int current;
-    public int Current  { get => current; set => current = value; }
+    public int Current
+    {
+      get => current;
+      set
+      {
+        current = value;
+        RaiseOnIndexChange();
+      }
+    }
 
-    public int Line { get => Current; }
     public string Reference { get => ExpandPackedRef(lineIndex[Current]); }
-    public byte Book    { get => lineIndex[Current].book;    }
-    public byte Chapter { get => lineIndex[Current].chapter; }
-    public byte Verse   { get => lineIndex[Current].verse;   }
+    public int    Line      { get => Current; }
+    public byte   Book      { get => lineIndex[Current].book;    }
+    public byte   Chapter   { get => lineIndex[Current].chapter; }
+    public byte   Verse     { get => lineIndex[Current].verse;   }
 
-    //public event EventHandler
+    public event EventHandler OnIndexChange;
 
     public BibleIndex()
     {
       BuildIndex();
       GoTo(1);
+    }
+
+    protected virtual void RaiseOnIndexChange()
+    {
+      OnIndexChange?.Invoke(this, null);
     }
 
     public void First()
@@ -134,6 +219,22 @@ namespace TheWord
       Current = line;
     }
 
+    public void GoTo(short book, short chapter, short verse)
+    {
+      int line = 1;
+      int cps = 1;
+
+      for (int bk = 1; bk < book; bk++)
+        for (int cp = 1; cp <= ChaptersPerBook[bk]; cp++, cps++)
+          line += VersesPerChapter[cps];
+
+      for (int cp = 1; cp < chapter; cp++, cps++)
+        line += VersesPerChapter[cps];
+
+      line += verse - 1;
+      GoTo(line);
+    }
+
     private void BuildIndex()
     {
       int cps = 1;
@@ -157,7 +258,7 @@ namespace TheWord
 
     private string ExpandPackedRef(PackedRef _ref)
     {
-      return $"{BookNames[_ref.book]} {_ref.chapter}:{_ref.verse}";
+      return $"{BookAbbrevs[_ref.book]} {_ref.chapter}:{_ref.verse}";
     }
   }
 }

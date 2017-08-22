@@ -47,6 +47,7 @@ namespace TheWord
     {
       if (tags.Count > 0)
         tags.Clear();
+      // TODO: Parse tags and add them split
       AddTag(new_tags);
       RaiseSytagmChanged();
     }

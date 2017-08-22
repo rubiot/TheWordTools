@@ -27,6 +27,17 @@ namespace TheWord
     int line = 1;
     public int Line { get => line; set => GoToLine(value); }
     public bool Modified { get; set; }
+    BibleIndex index;
+    public BibleIndex Index
+    {
+      get => index;
+      set
+      {
+        index = value;
+        index.OnIndexChange += OnIndexChange;
+        Line = index.Line;
+      }
+    }
 
     public event EventHandler<NewVerseArgs> OnNewVerse;
     public event EventHandler<NewVerseArgs> OnChange;
@@ -39,6 +50,11 @@ namespace TheWord
       current = new Verse(this);
       current.OnChange += OnVerseChange;
       Open(_file);
+    }
+
+    private void OnIndexChange(object sender, EventArgs e)
+    {
+      Line = (sender as BibleIndex).Line;
     }
 
     private void OnVerseChange(object sender, NewVerseArgs e)

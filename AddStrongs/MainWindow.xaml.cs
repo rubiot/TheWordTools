@@ -19,12 +19,20 @@ namespace AddStrongs
     {
       InitializeComponent();
 
-      VerseView1.DataSource = module1 = new BibleModule(@"C:\Temp\AnatolicBible\Anatolic Bible 10-7-2017.ont");
-      VerseView1.OnSyntagmClick += OnSyntagmClick;
+      Navigator.Index = Index;
+
+      module1 = new BibleModule(@"C:\Temp\AnatolicBible\Anatolic Bible 10-7-2017.ont");
+      module1.Index = Index;
       module1.OnNewVerse += OnNewVerse;
       module1.OnChange   += OnModuleChange;
 
-      VerseView2.DataSource = module2 = new BibleModule(@"C:\Temp\AnatolicBible\lxxmorph-rc.ot");
+      VerseView1.DataSource = module1;
+      VerseView1.OnSyntagmClick += OnSyntagmClick;
+
+      module2 = new BibleModule(@"C:\Temp\AnatolicBible\lxxmorph-rc.ot");
+      module2.Index = Index;
+
+      VerseView2.DataSource = module2;
       VerseView2.OnSyntagmClick += OnSyntagmClick;
     }
 
@@ -37,7 +45,6 @@ namespace AddStrongs
     {
       BibleModule bible = sender as BibleModule;
 
-      Index.GoTo(bible.Line);
       LineTextBox.Text = $"{Index.Reference}, line {Index.Line}";
       TheWordAPI.SynchronizeRef(Index.Book, Index.Chapter, Index.Verse);
     }
@@ -49,24 +56,19 @@ namespace AddStrongs
 
     private void BtnNext_Click(object sender, RoutedEventArgs e)
     {
-      module1.NextVerse();
-      module2.NextVerse();
+      Index.Next();
     }
 
     private void BtnPrev_Click(object sender, RoutedEventArgs e)
     {
-      module1.PreviousVerse();
-      module2.PreviousVerse();
+      Index.Previous();
     }
 
     private void LineTextBox_KeyUp(object sender, KeyEventArgs e)
     {
       if (e.Key == Key.Return)
-      {
-        ushort line;
-        if (ushort.TryParse(((TextBox)sender).Text, out line))
-          module1.Line = module2.Line = line;
-      }
+        if (ushort.TryParse(((TextBox)sender).Text, out ushort line))
+          Index.GoTo(line);
     }
 
     private void BtnSave_Click(object sender, RoutedEventArgs e)
