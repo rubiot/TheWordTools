@@ -7,12 +7,12 @@ using System.Windows;
 // As informações gerais sobre um assembly são controladas por
 // conjunto de atributos. Altere estes valores de atributo para modificar as informações
 // associada a um assembly.
-[assembly: AssemblyTitle("AddStrongs")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("TheWordBibleEditor")]
+[assembly: AssemblyDescription("Simple TheWord bible module editor")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("AddStrongs")]
-[assembly: AssemblyCopyright("Copyright ©  2017")]
+[assembly: AssemblyCompany("Rúbio R. C. Terra")]
+[assembly: AssemblyProduct("TheWordBibleEditor")]
+[assembly: AssemblyCopyright("Copyright © Rúbio R. C. Terra 2017")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

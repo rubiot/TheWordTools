@@ -1,11 +1,11 @@
-﻿<Window x:Name="WndMain" x:Class="AddStrongs.MainWindow"
+﻿<Window x:Name="WndMain" x:Class="TheWordBibleEditor.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TheWord"
         mc:Ignorable="d"
-        Title="AddStrongs Bible Tool" Height="344.854" Width="716.219" WindowStartupLocation="CenterScreen" Closing="WndMain_Closing" MinWidth="530" MinHeight="310">
+        Title="TheWord Bible Editor" Height="344.854" Width="716.219" WindowStartupLocation="CenterScreen" Closing="WndMain_Closing" MinWidth="530" MinHeight="310">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="71*"/>

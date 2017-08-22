@@ -4,7 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using TheWord;
 
-namespace AddStrongs
+namespace TheWordBibleEditor
 {
   /// <summary>
   /// Logic for MainWindow.xaml
