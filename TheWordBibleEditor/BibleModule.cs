@@ -105,7 +105,7 @@ namespace TheWord
     private void Open(string _file)
     {
       file = _file;
-      stream = new StreamReader(file);
+      stream = new StreamReader(file, true);
       IndexModule();
       changes.Clear();
       Line = line;
@@ -214,7 +214,7 @@ namespace TheWord
       string tmpFile = $"{file}.saving";
       using (var tmpModule = new StreamWriter(tmpFile, false, new UTF8Encoding(true)))
       {
-        stream.BaseStream.Seek(0, SeekOrigin.Begin);
+        stream.BaseStream.Seek(offsets[1], SeekOrigin.Begin); // skipping BOM
         stream.DiscardBufferedData();
         int _line = 1;
         while (stream.Peek() > -1)
