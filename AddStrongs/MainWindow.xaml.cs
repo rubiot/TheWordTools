@@ -30,6 +30,7 @@ namespace AddStrongs
       VerseView1.OnSyntagmClick += OnSyntagmClick;
 
       module2 = new BibleModule(@"C:\Temp\AnatolicBible\lxxmorph-rc.ot");
+      //module2 = new BibleModule(@"C:\Users\rubio\Dropbox\theWord\Bibles\tra++.nt");
       module2.Index = Index;
 
       VerseView2.DataSource = module2;

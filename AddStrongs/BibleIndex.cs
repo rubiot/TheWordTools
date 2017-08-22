@@ -150,7 +150,7 @@ namespace TheWord
       27,21
     };
 
-    static int MaxLine = 32102;
+    static int MaxLine = 31102;
 
     struct PackedRef
     {
@@ -168,6 +168,11 @@ namespace TheWord
       get => current;
       set
       {
+        if (value < 1)
+          value = 1;
+        if (value > MaxLine)
+          value = MaxLine;
+
         current = value;
         RaiseOnIndexChange();
       }

@@ -18,15 +18,26 @@ namespace TheWord
   public class BibleModule
   {
     string file;
-    const int maxLine = 32767;
-    long[] offsets = new long[maxLine + 1];
+    const int maxLines = 31102;
+    long[] offsets = new long[maxLines + 1];
     StreamReader stream;
     Dictionary<int, string> changes = new Dictionary<int, string>();
+
     Verse current;
     public Verse Current { get => current; }
+
+    private int maxLine;      // number of lines for this module
+    private int moduleOffset; // line number offset for this module in relation to .ont module
+
     int line = 1;
-    public int Line { get => line; set => GoToLine(value); }
+    public int Line
+    {
+      get => line;
+      set => GoToLine(value);
+    }
+
     public bool Modified { get; set; }
+
     BibleIndex index;
     public BibleIndex Index
     {
@@ -47,9 +58,31 @@ namespace TheWord
       if (!File.Exists(_file))
         throw new FileNotFoundException("File not found", _file);
 
+      SetLineLimits(_file);
       current = new Verse(this);
       current.OnChange += OnVerseChange;
       Open(_file);
+    }
+
+    private void SetLineLimits(string _file)
+    {
+      if (_file.EndsWith(".ont"))
+      {
+        maxLine = maxLines;
+        moduleOffset = 0;
+      }
+      else if (_file.EndsWith(".nt"))
+      {
+        maxLine = 7957;
+        moduleOffset = -23145;
+      }
+      else if (_file.EndsWith(".ot"))
+      {
+        maxLine = 23145;
+        moduleOffset = 0;
+      }
+      else
+        throw new FileFormatException("Invalid module file extension. Only '.ont', '.ot' and '.nt' files are allowed");
     }
 
     private void OnIndexChange(object sender, EventArgs e)
@@ -126,21 +159,21 @@ namespace TheWord
 
     private void IndexModule()
     {
-      int _line = 0;
+      int _line = 1;
       stream.BaseStream.Seek(0, SeekOrigin.Begin);
       stream.DiscardBufferedData();
-      while (stream.Peek() > -1)
+      while (stream.Peek() > -1 && _line <= maxLines)
       {
         //offsets[line++] = stream.Position; fails to consider buffers!!
         //                                   StreamReader should implement its own Position
-        offsets[++_line] = GetActualPosition(stream);
+        offsets[_line++] = GetActualPosition(stream);
         stream.ReadLine();
       }
     }
 
     public void NextVerse()
     {
-      if (line < maxLine)
+      if (line < maxLines)
         GoToLine(line + 1);
     }
 
@@ -159,9 +192,18 @@ namespace TheWord
     private void GoToLine(int _line)
     {
       line = _line;
-      stream.BaseStream.Seek(offsets[line], SeekOrigin.Begin);
-      stream.DiscardBufferedData();
-      ReadVerse();
+
+      if ((line + moduleOffset) < 1 || (line + moduleOffset) > maxLine)
+      {
+        current.Reset("This module does not have this verse");
+        RaiseNewVerse(new NewVerseArgs(current.Syntagms));
+      }
+      else
+      {
+        stream.BaseStream.Seek(offsets[line + moduleOffset], SeekOrigin.Begin);
+        stream.DiscardBufferedData();
+        ReadVerse();
+      }
     }
 
     public void Save()
@@ -174,13 +216,14 @@ namespace TheWord
       {
         stream.BaseStream.Seek(0, SeekOrigin.Begin);
         stream.DiscardBufferedData();
-        int _line = 0;
-        while (stream.Peek() > -1 && ++_line < maxLine)
+        int _line = 1;
+        while (stream.Peek() > -1)
         {
           string buffer = stream.ReadLine();
           if (changes.ContainsKey(_line))
             buffer = changes[_line];
           tmpModule.WriteLine(buffer);
+          _line++;
         }
       }
 
