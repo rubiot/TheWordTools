@@ -55,6 +55,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BibleIndex.cs" />
+    <Compile Include="BibleNavigator.cs" />
     <Compile Include="TheWordAPI.cs" />
     <Compile Include="Parser.cs" />
     <Compile Include="Tokenizer.cs" />
