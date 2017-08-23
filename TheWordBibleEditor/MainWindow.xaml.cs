@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.ComponentModel;
 using TheWord;
 
 namespace TheWordBibleEditor
@@ -11,7 +12,7 @@ namespace TheWordBibleEditor
   /// </summary>
   public partial class MainWindow : Window
   {
-    BibleIndex Index = new BibleIndex();
+    BibleIndex Index = BibleIndex.Instance;
     BibleModule module1;
     BibleModule module2;
 
@@ -19,28 +20,15 @@ namespace TheWordBibleEditor
     {
       InitializeComponent();
 
-      Navigator.Index = Index;
-
       module1 = new BibleModule(@"C:\Temp\AnatolicBible\Anatolic Bible 10-7-2017.ont");
-      module1.Index = Index;
       module1.OnNewVerse += OnNewVerse;
-      module1.OnChange   += OnModuleChange;
 
       VerseView1.DataSource = module1;
-      VerseView1.OnSyntagmClick += OnSyntagmClick;
 
       module2 = new BibleModule(@"C:\Temp\AnatolicBible\lxxmorph-rc.ot");
-      //module2 = new BibleModule(@"C:\Users\rubio\Dropbox\theWord\Bibles\tra++.nt");
-      module2.Index = Index;
 
       VerseView2.DataSource = module2;
       VerseView2.IsReadOnly = true;
-      VerseView2.OnSyntagmClick += OnSyntagmClick;
-    }
-
-    private void OnModuleChange(object sender, EventArgs e)
-    {
-      BtnSave.IsEnabled = true;
     }
 
     private void OnNewVerse(object sender, NewVerseArgs e)
@@ -49,11 +37,6 @@ namespace TheWordBibleEditor
 
       LineTextBox.Text = $"{Index.Reference}, line {Index.Line}";
       TheWordAPI.SynchronizeRef(Index.Book, Index.Chapter, Index.Verse);
-    }
-
-    private void OnSyntagmClick(object sender, SyntagmEventArgs e)
-    {
-      // do nothing for now...
     }
 
     private void BtnNext_Click(object sender, RoutedEventArgs e)
@@ -76,10 +59,9 @@ namespace TheWordBibleEditor
     private void BtnSave_Click(object sender, RoutedEventArgs e)
     {
       module1.Save();
-      BtnSave.IsEnabled = false;
     }
 
-    private void WndMain_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+    private void WndMain_Closing(object sender, CancelEventArgs e)
     {
       if (module1.Modified)
       {

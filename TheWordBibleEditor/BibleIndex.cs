@@ -4,15 +4,9 @@ using System.Windows.Documents;
 
 namespace TheWord
 {
-  public class BibleIndex
+  public sealed class BibleIndex
   {
-    public static short[] ChaptersPerBook  = new short[67]
-    {
-      0,50,40,27,36,34,24,21,4,31,24,22,25,29,36,10,13,10,42,150,31,12,8,66,
-      52,5,48,12,14,3,9,1,4,7,3,3,3,2,14,4,28,16,24,21,28,16,16,13,6,6,4,4,
-      5,3,6,4,3,1,13,5,5,3,5,1,1,1,22
-    };
-    public static string[] BookNames       = new string[67]
+    public static string[] BookNames = new string[67]
     {
       "____", "Genesis", "Exodus", "Leviticus", "Numbers", "Deuteronomy",
       "Joshua", "Judges", "Ruth", "1 Samuel", "2 Samuel", "1 Kings",
@@ -27,7 +21,7 @@ namespace TheWord
       "Hebrews", "James", "1 Peter", "2 Peter", "1 John", "2 John", "3John",
       "Jude", "Revelation"
     };
-    public static string[] BookAbbrevs     = new string[67]
+    public static string[] BookAbbrevs = new string[67]
     {
       "____", "Gen", "Exod","Lev", "Num",   "Deut",  "Josh", "Judg",
       "Ruth", "1Sam","2Sam","1Kgs","2Kgs",  "1Chr",  "2Chr", "Ezra",
@@ -38,6 +32,12 @@ namespace TheWord
       "Gal",  "Eph", "Phil","Col", "1Thess","2Thess","1Tim", "2Tim",
       "Titus","Phlm","Heb", "Jas", "1Pet",  "2Pet",  "1John","2John",
       "3John","Jude","Rev"
+    };
+    public static short[] ChaptersPerBook = new short[67]
+    {
+      0,50,40,27,36,34,24,21,4,31,24,22,25,29,36,10,13,10,42,150,31,12,8,66,
+      52,5,48,12,14,3,9,1,4,7,3,3,3,2,14,4,28,16,24,21,28,16,16,13,6,6,4,4,
+      5,3,6,4,3,1,13,5,5,3,5,1,1,1,22
     };
     public static short[] VersesPerChapter = new short[1190]
     {
@@ -94,8 +94,9 @@ namespace TheWord
       13,14,25,20,29,22,11,14,17,17,13,21,11,19,17,18,20,8,21,18,24,21,15,
       27,21
     };
-
     static int MaxLine = 31102;
+
+    public static readonly BibleIndex Instance = new BibleIndex();
 
     struct PackedRef
     {
@@ -131,13 +132,15 @@ namespace TheWord
 
     public event EventHandler OnIndexChange;
 
-    public BibleIndex()
+    static BibleIndex() { }
+
+    private BibleIndex()
     {
       BuildIndex();
       GoTo(1);
     }
 
-    protected virtual void RaiseOnIndexChange()
+    private void RaiseOnIndexChange()
     {
       OnIndexChange?.Invoke(this, null);
     }
@@ -199,7 +202,8 @@ namespace TheWord
             lineIndex[Current].book    = bk;
             lineIndex[Current].chapter = cp;
             lineIndex[Current].verse   = vs;
-            refIndex[ExpandPackedRef(lineIndex[Current])] = Current;
+            // not used for now
+            //refIndex[ExpandPackedRef(lineIndex[Current])] = Current;
             current++;
           }
         }

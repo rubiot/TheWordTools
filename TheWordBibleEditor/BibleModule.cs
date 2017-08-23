@@ -38,17 +38,7 @@ namespace TheWord
 
     public bool Modified { get; set; }
 
-    BibleIndex index;
-    public BibleIndex Index
-    {
-      get => index;
-      set
-      {
-        index = value;
-        index.OnIndexChange += OnIndexChange;
-        Line = index.Line;
-      }
-    }
+    BibleIndex Index = BibleIndex.Instance;
 
     public event EventHandler<NewVerseArgs> OnNewVerse;
     public event EventHandler<NewVerseArgs> OnChange;
@@ -58,6 +48,7 @@ namespace TheWord
       if (!File.Exists(_file))
         throw new FileNotFoundException("File not found", _file);
 
+      Index.OnIndexChange += OnIndexChange;
       SetLineLimits(_file);
       current = new Verse(this);
       current.OnChange += OnVerseChange;

@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Microsoft.Win32;
 
 namespace TheWord
 {
@@ -15,7 +16,93 @@ namespace TheWord
     public Syntagm Syntagm { get; set; }
   }
 
-  class SyntagmContextMenu : ContextMenu
+  class ContexMenuHelper : ContextMenu
+  {
+    public MenuItem MakeMenuItem(object header, RoutedEventHandler click = null)
+    {
+      var item = new MenuItem() { Header = header };
+      if (click != null)
+        item.Click += click;
+      return item;
+    }
+  }
+
+  class VerseContextMenu : ContexMenuHelper
+  {
+    public VerseView Verse { get; set; }
+
+    public VerseContextMenu(VerseView verse)
+    {
+      Verse = verse;
+      Opened += OnOpened;
+      Items.Add(MakeMenuItem("Open...", OpenClick));
+      Items.Add(MakeMenuItem("Save",    SaveClick));
+      Items.Add(MakeMenuItem("Close",   CloseClick));
+    }
+
+    private void OnOpened(object sender, RoutedEventArgs e)
+    {
+      // TODO: Too fragile...
+      (Items[1] as MenuItem).IsEnabled = Verse.DataSource.Modified;
+    }
+
+    private void CloseClick(object sender, RoutedEventArgs e)
+    {
+      QueryForSaving(out bool proceed);
+      if (proceed)
+      {
+        // TODO: Consider what is the best thing to do here
+        //Verse.DataSource = null;
+      }
+    }
+
+    private void SaveClick(object sender, RoutedEventArgs e)
+    {
+      Verse.DataSource.Save();
+    }
+
+    private void QueryForSaving(out bool proceed)
+    {
+      // XXX: Duplicated code!
+      if (Verse.DataSource.Modified)
+      {
+        MessageBoxResult result = MessageBox.Show("There are pending changes. Click Yes to save and close, No to close without saving, or Cancel to not close.",
+                                                  "TheWord Bible Editor", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+        switch (result)
+        {
+          case MessageBoxResult.Cancel:
+            proceed = false;
+            break;
+          case MessageBoxResult.Yes:
+            Verse.DataSource.Save();
+            proceed = true;
+            break;
+          case MessageBoxResult.No:
+            proceed = true;
+            break;
+          default:
+            proceed = true;
+            break;
+        }
+      }
+      proceed = true;
+    }
+
+    private void OpenClick(object sender, RoutedEventArgs e)
+    {
+      QueryForSaving(out bool proceed);
+
+      if (proceed)
+      {
+        var dlg = new OpenFileDialog() { Filter = "TheWord bible modules (*.ot, *.nt, *.ont)|*.ot;*.nt;*.ont" };
+        Nullable<bool> result = dlg.ShowDialog();
+        if (result == true)
+          Verse.DataSource = new BibleModule(dlg.FileName);
+      }
+    }
+  }
+
+  class SyntagmContextMenu : ContexMenuHelper
   {
     TextBox tagsTextBox = new TextBox();
     private Syntagm syntagm;
@@ -31,22 +118,11 @@ namespace TheWord
       }
     }
 
-    public SyntagmContextMenu()
+    public SyntagmContextMenu() : base()
     {
-      var copy = new MenuItem();
-      copy.Header = "Copy tags";
-      copy.Click += CopyTagsClick;
-      Items.Add(copy);
-
-      var paste = new MenuItem();
-      paste.Header = "Paste tags";
-      paste.Click += PasteTagsClick;
-      Items.Add(paste);
-
-      var tags = new MenuItem();
-      tags.Header = tagsTextBox;
-      tags.Focusable = true;
-      Items.Add(tags);
+      Items.Add(MakeMenuItem("Copy tags", CopyTagsClick));
+      Items.Add(MakeMenuItem("Paste tags", PasteTagsClick));
+      Items.Add(MakeMenuItem(tagsTextBox));
 
       Opened += OnOpened;
       tagsTextBox.KeyDown += TagsChange;
@@ -113,6 +189,7 @@ namespace TheWord
     {
       VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
       Content = panel = new WrapPanel();
+      ContextMenu = new VerseContextMenu(this);
       MouseDoubleClick += OnMouseDoubleClick;
 
       editBox = new TextBox { TextWrapping = TextWrapping.Wrap };

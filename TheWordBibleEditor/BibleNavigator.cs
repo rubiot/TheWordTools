@@ -7,16 +7,18 @@ namespace TheWord
   public class BibleNavigator : ScrollViewer
   {
     StackPanel panel = new StackPanel();
-    public BibleIndex Index { get; set; }
+    BibleIndex Index = BibleIndex.Instance;
 
     public BibleNavigator()
     {
       Content = panel;
       for (short b = 1; b <= 66 ; b++)
       {
-        var e = new Expander();
-        e.Header = new TextBlock() { Text = BibleIndex.BookNames[b] };
-        e.Content = MakeChapterGrid(b);
+        var e = new Expander
+        {
+          Header = new TextBlock() { Text = BibleIndex.BookNames[b] },
+          Content = MakeChapterGrid(b)
+        };
         panel.Children.Add(e);
       }
     }
