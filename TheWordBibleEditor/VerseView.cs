@@ -52,6 +52,13 @@ namespace TheWord
       tagsTextBox.KeyDown += TagsChange;
     }
 
+    public void SetReadOnlyOption(bool value)
+    {
+      // TODO: This is too fragile. Make it safer
+      (Items[1] as MenuItem).IsEnabled = !value;
+      ((Items[2] as MenuItem).Header as TextBox).IsReadOnly = value;
+    }
+
     private void OnOpened(object sender, RoutedEventArgs e)
     {
       Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(delegate () { tagsTextBox.Focus(); }));
@@ -93,6 +100,12 @@ namespace TheWord
         OnNewVerse(this, new NewVerseArgs(dataSource.Current.Syntagms));
       }
     }
+    private bool isReadOnly = false;
+    public bool IsReadOnly
+    {
+      get => isReadOnly;
+      set { isReadOnly = value; contextMenu.SetReadOnlyOption(value); }
+    }
 
     public event EventHandler<SyntagmEventArgs> OnSyntagmClick;
 
@@ -108,7 +121,7 @@ namespace TheWord
 
     private void OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
-      if (e.ChangedButton == MouseButton.Left)
+      if (!IsReadOnly && e.ChangedButton == MouseButton.Left)
       {
         editBox.Text = dataSource.Current.Text;
         Content = editBox;

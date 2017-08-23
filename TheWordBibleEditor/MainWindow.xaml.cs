@@ -34,6 +34,7 @@ namespace TheWordBibleEditor
       module2.Index = Index;
 
       VerseView2.DataSource = module2;
+      VerseView2.IsReadOnly = true;
       VerseView2.OnSyntagmClick += OnSyntagmClick;
     }
 
@@ -83,7 +84,7 @@ namespace TheWordBibleEditor
       if (module1.Modified)
       {
         MessageBoxResult result = MessageBox.Show("There are pending changes. Click Yes to save and close, No to close without saving, or Cancel to not close.",
-                                                  "AddStrongs", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+                                                  "TheWord Bible Editor", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
 
         switch (result)
         {
