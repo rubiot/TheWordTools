@@ -38,9 +38,11 @@ namespace TheWord
 
       for (int i = 0; i < chapters; i++)
       {
-        var button = new Button();
-        button.Content = i + 1;
-        button.Tag = book;
+        var button = new Button
+        {
+          Content = i + 1,
+          Tag = book
+        };
         button.Click += OnChapterClick;
         Grid.SetColumn(button, i % 10);
         Grid.SetRow(button, i / 10);

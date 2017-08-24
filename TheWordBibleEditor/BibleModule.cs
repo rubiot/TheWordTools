@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Windows;
 
 namespace TheWord
 {
@@ -53,6 +54,26 @@ namespace TheWord
       current = new Verse(this);
       current.OnChange += OnVerseChange;
       Open(_file);
+    }
+
+    public bool Close()
+    {
+      if (!Modified)
+        return true;
+
+      var result = MessageBox.Show("There are pending changes. Click Yes to save and close, No to close without saving, or Cancel to not close.",
+                                    "TheWord Bible Editor", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+      switch (result)
+      {
+        case MessageBoxResult.Cancel:
+        case MessageBoxResult.No:
+          return false;
+        case MessageBoxResult.Yes:
+          Save();
+          return true;
+        default:
+          return true;
+      }
     }
 
     private void SetLineLimits(string _file)

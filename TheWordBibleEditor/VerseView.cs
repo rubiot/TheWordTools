@@ -43,16 +43,16 @@ namespace TheWord
     private void OnOpened(object sender, RoutedEventArgs e)
     {
       // TODO: Too fragile...
-      (Items[1] as MenuItem).IsEnabled = Verse.DataSource.Modified;
+      (Items[1] as MenuItem).IsEnabled = Verse.DataSource != null && Verse.DataSource.Modified;
+      (Items[2] as MenuItem).IsEnabled = Verse.DataSource != null;
     }
 
     private void CloseClick(object sender, RoutedEventArgs e)
     {
-      QueryForSaving(out bool proceed);
-      if (proceed)
+      if (Verse.DataSource != null && Verse.DataSource.Close())
       {
-        // TODO: Consider what is the best thing to do here
-        //Verse.DataSource = null;
+        Verse.DataSource = null;
+        Verse.Clear();
       }
     }
 
@@ -61,38 +61,9 @@ namespace TheWord
       Verse.DataSource.Save();
     }
 
-    private void QueryForSaving(out bool proceed)
-    {
-      // XXX: Duplicated code!
-      if (Verse.DataSource.Modified)
-      {
-        MessageBoxResult result = MessageBox.Show("There are pending changes. Click Yes to save and close, No to close without saving, or Cancel to not close.",
-                                                  "TheWord Bible Editor", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
-        switch (result)
-        {
-          case MessageBoxResult.Cancel:
-            proceed = false;
-            break;
-          case MessageBoxResult.Yes:
-            Verse.DataSource.Save();
-            proceed = true;
-            break;
-          case MessageBoxResult.No:
-            proceed = true;
-            break;
-          default:
-            proceed = true;
-            break;
-        }
-      }
-      proceed = true;
-    }
-
     private void OpenClick(object sender, RoutedEventArgs e)
     {
-      QueryForSaving(out bool proceed);
-
-      if (proceed)
+      if (Verse.DataSource == null || Verse.DataSource.Close())
       {
         var dlg = new OpenFileDialog() { Filter = "TheWord bible modules (*.ot, *.nt, *.ont)|*.ot;*.nt;*.ont" };
         Nullable<bool> result = dlg.ShowDialog();
@@ -171,9 +142,12 @@ namespace TheWord
       set
       {
         dataSource = value;
-        dataSource.OnNewVerse += OnNewVerse;
-        dataSource.OnChange   += OnNewVerse;
-        OnNewVerse(this, new NewVerseArgs(dataSource.Current.Syntagms));
+        if (dataSource != null)
+        {
+          dataSource.OnNewVerse += OnNewVerse;
+          dataSource.OnChange += OnNewVerse;
+          OnNewVerse(this, new NewVerseArgs(dataSource.Current.Syntagms));
+        }
       }
     }
     private bool isReadOnly = false;
@@ -198,9 +172,9 @@ namespace TheWord
 
     private void OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
     {
-      if (!IsReadOnly && e.ChangedButton == MouseButton.Left)
+      if (e.ChangedButton == MouseButton.Left)
       {
-        editBox.Text = dataSource.Current.Text;
+        editBox.Text = dataSource?.Current.Text;
         Content = editBox;
         Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(delegate () { editBox.Focus(); }));
       }
@@ -210,7 +184,8 @@ namespace TheWord
     {
       if (e.Key == Key.Escape)
       {
-        dataSource.Current.ChangeText(editBox.Text);
+        if (!IsReadOnly)
+          dataSource.Current.ChangeText(editBox.Text);
         Content = panel;
       }
     }

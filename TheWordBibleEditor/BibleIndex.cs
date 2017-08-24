@@ -124,6 +124,17 @@ namespace TheWord
       }
     }
 
+    private bool syncronizeWithTheWord = true;
+    public bool SynchronizeWithTheWord
+    {
+      get => syncronizeWithTheWord;
+      set
+      {
+        syncronizeWithTheWord = value;
+        TheWordAPI.SynchronizeRef(Book, Chapter, Verse);
+      }
+    }
+
     public string Reference { get => ExpandPackedRef(lineIndex[Current]); }
     public int    Line      { get => Current; }
     public byte   Book      { get => lineIndex[Current].book;    }
@@ -143,6 +154,9 @@ namespace TheWord
     private void RaiseOnIndexChange()
     {
       OnIndexChange?.Invoke(this, null);
+
+      if (syncronizeWithTheWord)
+        TheWordAPI.SynchronizeRef(Book, Chapter, Verse);
     }
 
     public void First()
