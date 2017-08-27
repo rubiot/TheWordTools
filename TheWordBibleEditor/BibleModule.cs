@@ -20,6 +20,7 @@ namespace TheWord
   {
     string filePath;
     public string FilePath { get => filePath; }
+    public bool IsOpen { get => FilePath.Length > 0; }
     const int maxLines = 31102;
     long[] offsets = new long[maxLines + 1];
     StreamReader stream;
@@ -59,6 +60,9 @@ namespace TheWord
 
     public bool Close()
     {
+      if (!IsOpen)
+        return true;
+
       MessageBoxResult result = MessageBoxResult.No;
 
       if (Modified)
@@ -209,6 +213,9 @@ namespace TheWord
 
     private void GoToLine(int _line)
     {
+      if (!IsOpen)
+        return;
+
       line = _line;
 
       if ((line + moduleOffset) < 1 || (line + moduleOffset) > maxLine)
@@ -226,7 +233,7 @@ namespace TheWord
 
     public void Save()
     {
-      if (!Modified)
+      if (!IsOpen || !Modified)
         return;
 
       string tmpFile = $"{filePath}.saving";
