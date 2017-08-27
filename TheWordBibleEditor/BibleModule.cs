@@ -65,11 +65,15 @@ namespace TheWord
                                     "TheWord Bible Editor", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
       switch (result)
       {
-        case MessageBoxResult.Cancel:
-        case MessageBoxResult.No:
-          return false;
         case MessageBoxResult.Yes:
           Save();
+          return true;
+        case MessageBoxResult.Cancel:
+          return false;
+        case MessageBoxResult.No:
+          changes.Clear();
+          stream.Dispose();
+          Modified = false;
           return true;
         default:
           return true;
@@ -120,7 +124,7 @@ namespace TheWord
       stream = new StreamReader(file, true);
       IndexModule();
       changes.Clear();
-      Line = line;
+      Line = Index.Line;
     }
 
     static public long GetActualPosition(StreamReader reader)
@@ -246,6 +250,7 @@ namespace TheWord
       File.Move(tmpFile, file);
 
       Open(file);
+      changes.Clear();
       Modified = false;
     }
 

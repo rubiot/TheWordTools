@@ -48,7 +48,8 @@ namespace TheWordBibleEditor
 
     private void WndMain_Closing(object sender, CancelEventArgs e)
     {
-      e.Cancel = !VerseView1.DataSource.Close() || !VerseView2.DataSource.Close();
+      e.Cancel = (VerseView1.DataSource != null && !VerseView1.DataSource.Close()) ||
+                 (VerseView2.DataSource != null && !VerseView2.DataSource.Close());
     }
   }
 }
