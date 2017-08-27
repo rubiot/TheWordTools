@@ -46,7 +46,7 @@ namespace TheWord
       // TODO: Too fragile...
       (Items[1] as MenuItem).IsEnabled = Verse.DataSource != null && Verse.DataSource.Modified;
       (Items[2] as MenuItem).IsEnabled = Verse.DataSource != null;
-      (Items[3] as MenuItem).Header = Verse.DataSource.FilePath;
+      (Items[3] as MenuItem).Header = Verse.DataSource?.FilePath;
       (Items[3] as MenuItem).IsEnabled = false;
     }
 
@@ -96,6 +96,7 @@ namespace TheWord
     {
       Items.Add(MakeMenuItem("Copy tags", CopyTagsClick));
       Items.Add(MakeMenuItem("Paste tags", PasteTagsClick));
+      Items.Add(MakeMenuItem("<Mark for review>", PasteTagsClick));
       Items.Add(MakeMenuItem(tagsTextBox));
 
       Opened += OnOpened;
@@ -106,13 +107,33 @@ namespace TheWord
     {
       // TODO: This is too fragile. Make it safer
       (Items[1] as MenuItem).IsEnabled = !value;
-      ((Items[2] as MenuItem).Header as TextBox).IsReadOnly = value;
+      ((Items[3] as MenuItem).Header as TextBox).IsReadOnly = value;
     }
 
     private void OnOpened(object sender, RoutedEventArgs e)
     {
+      if (syntagm.HasTag("<?>"))
+      {
+        (Items[2] as MenuItem).Header = "Mark as reviewed";
+        (Items[2] as MenuItem).Click += MarkAsReviewedClick;
+      }
+      else
+      {
+        (Items[2] as MenuItem).Header = "Mark for review";
+        (Items[2] as MenuItem).Click += MarkForReviewClick;
+      }
       Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(delegate () { tagsTextBox.Focus(); }));
       tagsTextBox.SelectAll();
+    }
+
+    private void MarkAsReviewedClick(object sender, RoutedEventArgs e)
+    {
+      syntagm.RemoveTag("<?>");
+    }
+
+    private void MarkForReviewClick(object sender, RoutedEventArgs e)
+    {
+      syntagm.AddTag("<?>");
     }
 
     private void TagsChange(object sender, KeyEventArgs e)
