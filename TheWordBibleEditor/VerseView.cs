@@ -38,6 +38,7 @@ namespace TheWord
       Items.Add(MakeMenuItem("Open...", OpenClick));
       Items.Add(MakeMenuItem("Save",    SaveClick));
       Items.Add(MakeMenuItem("Close",   CloseClick));
+      Items.Add(MakeMenuItem("<module path>", null));
     }
 
     private void OnOpened(object sender, RoutedEventArgs e)
@@ -45,6 +46,8 @@ namespace TheWord
       // TODO: Too fragile...
       (Items[1] as MenuItem).IsEnabled = Verse.DataSource != null && Verse.DataSource.Modified;
       (Items[2] as MenuItem).IsEnabled = Verse.DataSource != null;
+      (Items[3] as MenuItem).Header = Verse.DataSource.FilePath;
+      (Items[3] as MenuItem).IsEnabled = false;
     }
 
     private void CloseClick(object sender, RoutedEventArgs e)
