@@ -20,7 +20,13 @@ namespace TheWordBibleEditor
 
       Index.OnIndexChange += OnIndexChange;
 
-      VerseView1.DataSource = new BibleModule(@"C:\Temp\AnatolicBible\Anatolic Bible 10-7-2017.ont");
+      Index.GoTo(Properties.Settings.Default.line);
+
+      if (Properties.Settings.Default.module1.Length > 0)
+        VerseView1.DataSource = new BibleModule(Properties.Settings.Default.module1);
+      if (Properties.Settings.Default.module2.Length > 0)
+        VerseView2.DataSource = new BibleModule(Properties.Settings.Default.module2);
+      //VerseView1.DataSource = new BibleModule(@"C:\Temp\AnatolicBible\Anatolic Bible 10-7-2017.ont");
       VerseView2.IsReadOnly = true;
     }
 
@@ -48,8 +54,20 @@ namespace TheWordBibleEditor
 
     private void WndMain_Closing(object sender, CancelEventArgs e)
     {
+      string module1 = VerseView1.DataSource?.FilePath ?? ""; // saving file name before closing module
+      string module2 = VerseView2.DataSource?.FilePath ?? ""; // saving file name before closing module
+
       e.Cancel = (VerseView1.DataSource != null && !VerseView1.DataSource.Close()) ||
                  (VerseView2.DataSource != null && !VerseView2.DataSource.Close());
+
+      if (!e.Cancel)
+      {
+        Properties.Settings.Default["module1"] = module1;
+        Properties.Settings.Default["module2"] = module2;
+        Properties.Settings.Default["line"]    = Index.Line;
+
+        Properties.Settings.Default.Save();
+      }
     }
   }
 }

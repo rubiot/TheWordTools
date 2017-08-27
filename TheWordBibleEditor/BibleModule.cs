@@ -18,7 +18,8 @@ namespace TheWord
 
   public class BibleModule
   {
-    string file;
+    string filePath;
+    public string FilePath { get => filePath; }
     const int maxLines = 31102;
     long[] offsets = new long[maxLines + 1];
     StreamReader stream;
@@ -58,23 +59,24 @@ namespace TheWord
 
     public bool Close()
     {
-      if (!Modified)
-        return true;
+      MessageBoxResult result = MessageBoxResult.No;
 
-      var result = MessageBox.Show("There are pending changes. Click Yes to save and close, No to close without saving, or Cancel to not close.",
-                                    "TheWord Bible Editor", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
+      if (Modified)
+        result = MessageBox.Show("There are pending changes. Click Yes to save and close, No to close without saving, or Cancel to not close.",
+                                 "TheWord Bible Editor", MessageBoxButton.YesNoCancel, MessageBoxImage.Warning);
       switch (result)
       {
         case MessageBoxResult.Yes:
           Save();
-          return true;
-        case MessageBoxResult.Cancel:
-          return false;
+          goto case MessageBoxResult.No;
         case MessageBoxResult.No:
+          filePath = "";
           changes.Clear();
           stream.Dispose();
           Modified = false;
           return true;
+        case MessageBoxResult.Cancel:
+          return false;
         default:
           return true;
       }
@@ -120,8 +122,8 @@ namespace TheWord
 
     private void Open(string _file)
     {
-      file = _file;
-      stream = new StreamReader(file, true);
+      filePath = _file;
+      stream = new StreamReader(filePath, true);
       IndexModule();
       changes.Clear();
       Line = Index.Line;
@@ -227,7 +229,7 @@ namespace TheWord
       if (!Modified)
         return;
 
-      string tmpFile = $"{file}.saving";
+      string tmpFile = $"{filePath}.saving";
       using (var tmpModule = new StreamWriter(tmpFile, false, new UTF8Encoding(true)))
       {
         stream.BaseStream.Seek(offsets[1], SeekOrigin.Begin); // skipping BOM
@@ -245,11 +247,11 @@ namespace TheWord
 
       stream.Dispose();
 
-      if (File.Exists(file))
-        File.Delete(file);
-      File.Move(tmpFile, file);
+      if (File.Exists(filePath))
+        File.Delete(filePath);
+      File.Move(tmpFile, filePath);
 
-      Open(file);
+      Open(filePath);
       changes.Clear();
       Modified = false;
     }

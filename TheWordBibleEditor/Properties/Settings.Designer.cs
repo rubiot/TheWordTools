@@ -22,5 +22,41 @@ namespace TheWordBibleEditor.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string module1 {
+            get {
+                return ((string)(this["module1"]));
+            }
+            set {
+                this["module1"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string module2 {
+            get {
+                return ((string)(this["module2"]));
+            }
+            set {
+                this["module2"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public int line {
+            get {
+                return ((int)(this["line"]));
+            }
+            set {
+                this["line"] = value;
+            }
+        }
     }
 }
