@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.ComponentModel;
 using TheWord;
+using System.IO;
 
 namespace TheWordBibleEditor
 {
@@ -22,11 +23,11 @@ namespace TheWordBibleEditor
 
       Index.GoTo(Properties.Settings.Default.line);
 
-      if (Properties.Settings.Default.module1.Length > 0)
-        VerseView1.DataSource = new BibleModule(Properties.Settings.Default.module1);
-      if (Properties.Settings.Default.module2.Length > 0)
-        VerseView2.DataSource = new BibleModule(Properties.Settings.Default.module2);
-      //VerseView1.DataSource = new BibleModule(@"C:\Temp\AnatolicBible\Anatolic Bible 10-7-2017.ont");
+      if (File.Exists(Properties.Settings.Default.module1))
+          VerseView1.DataSource = new BibleModule(Properties.Settings.Default.module1);
+      if (File.Exists(Properties.Settings.Default.module2))
+          VerseView2.DataSource = new BibleModule(Properties.Settings.Default.module2);
+
       VerseView2.IsReadOnly = true;
     }
 
