@@ -6,9 +6,14 @@ namespace TheWord
 {
   class Parser
   {
+    public static readonly Parser Instance = new Parser();
+
     static TokenType[] TagTokens = new[] { TokenType.Strong, TokenType.Morpho, TokenType.ReviewTag };
 
     Tokenizer tokenizer = new Tokenizer();
+
+    static Parser() { }
+    private Parser() { }
 
     public void Parse(string verse)
     {

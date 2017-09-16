@@ -7,7 +7,7 @@ namespace TheWord
   public class Verse
   {
     BibleModule parent;
-    Parser parser = new Parser();
+    Parser parser = Parser.Instance;
     List<Syntagm> syntagms = new List<Syntagm>();
     public string Text
     {
