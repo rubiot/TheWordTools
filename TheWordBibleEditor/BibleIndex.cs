@@ -131,7 +131,8 @@ namespace TheWord
       set
       {
         syncronizeWithTheWord = value;
-        TheWordAPI.SynchronizeRef(Book, Chapter, Verse);
+        if (syncronizeWithTheWord)
+          TheWordAPI.SynchronizeRef(Book, Chapter, Verse);
       }
     }
 
