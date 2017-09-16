@@ -48,12 +48,10 @@ namespace TheWord
       if (new_tags == AllTags)
         return;
 
-      if (tags.Count > 0)
-        tags.Clear();
+      tags.Clear();
 
-      // TODO: Parse tags and add them split
-      if (new_tags.Length > 0)
-        AddTag(new_tags);
+      foreach (var tag in Parser.Instance.ParseTags(new_tags))
+        tags.Add(tag);
 
       RaiseSytagmChanged();
     }

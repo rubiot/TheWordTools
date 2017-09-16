@@ -96,7 +96,7 @@ namespace TheWord
     {
       Items.Add(MakeMenuItem("Copy tags", CopyTagsClick));
       Items.Add(MakeMenuItem("Paste tags", PasteTagsClick));
-      Items.Add(MakeMenuItem("<Mark for review>", PasteTagsClick));
+      Items.Add(MakeMenuItem("<Mark for review>", null));
       Items.Add(MakeMenuItem(tagsTextBox));
 
       Opened += OnOpened;
@@ -115,11 +115,13 @@ namespace TheWord
       if (syntagm.HasTag("<?>"))
       {
         (Items[2] as MenuItem).Header = "Mark as reviewed";
+        (Items[2] as MenuItem).Click -= MarkForReviewClick;
         (Items[2] as MenuItem).Click += MarkAsReviewedClick;
       }
       else
       {
         (Items[2] as MenuItem).Header = "Mark for review";
+        (Items[2] as MenuItem).Click -= MarkAsReviewedClick;
         (Items[2] as MenuItem).Click += MarkForReviewClick;
       }
       Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(delegate () { tagsTextBox.Focus(); }));

@@ -23,7 +23,7 @@ namespace TheWord
       }
       set
       {
-        parser.Parse(value);
+        parser.ParseVerse(value);
         syntagms.Clear();
         foreach (var s in parser.GetSyntagms())
         {

@@ -15,9 +15,21 @@ namespace TheWord
     static Parser() { }
     private Parser() { }
 
-    public void Parse(string verse)
+    public void ParseVerse(string verse)
     {
       tokenizer.Text = verse;
+    }
+
+    public IEnumerable<string> ParseTags(string tags, bool ignore_invalid = true)
+    {
+      tokenizer.Text = tags;
+      foreach (var token in tokenizer.GetTokens())
+      {
+        if (TagTokens.Contains(token.Type))
+          yield return token.Value;
+        else if (ignore_invalid == false)
+          throw new Exception($"<{token.Value} is not a valid tag");
+      }
     }
 
     public IEnumerable<Syntagm> GetSyntagms()
