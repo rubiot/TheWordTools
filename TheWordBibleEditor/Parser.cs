@@ -28,7 +28,7 @@ namespace TheWord
         if (TagTokens.Contains(token.Type))
           yield return token.Value;
         else if (ignore_invalid == false)
-          throw new Exception($"<{token.Value} is not a valid tag");
+          throw new Exception($"<{token.Value}> is not a valid tag");
       }
     }
 
@@ -56,7 +56,8 @@ namespace TheWord
             break;
           case TokenType.Strong:
           case TokenType.Morpho:
-            throw new Exception("Strong and morphology tags must follow a word");
+          case TokenType.ReviewTag:
+            throw new Exception($"This tag type must follow a word ({tokenList[i].Type}/\"{tokenList[i].Value}\")");
           default:
             throw new Exception($"Unhandled token type: {tokenList[i].Type}");
         }
