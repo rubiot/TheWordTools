@@ -84,6 +84,7 @@ namespace TheWord
 
   class SyntagmContextMenu : ContexMenuHelper
   {
+    const string NoTagsText = "<no tags>";
     TextBox tagsTextBox = new TextBox();
     private Syntagm syntagm;
     public Syntagm Syntagm
@@ -94,7 +95,7 @@ namespace TheWord
         syntagm = value;
         tagsTextBox.Text = value.AllTags;
         if (tagsTextBox.Text.Length == 0)
-          tagsTextBox.Text = "<no tags>";
+          tagsTextBox.Text = NoTagsText;
       }
     }
 
@@ -140,8 +141,9 @@ namespace TheWord
 
     private void TagsChange(object sender, KeyEventArgs e)
     {
-      if (e.Key == Key.Return)
-        Syntagm?.ReplaceTags((sender as TextBox).Text);
+      var textBox = (sender as TextBox);
+      if (e.Key == Key.Return && textBox.Text != NoTagsText)
+        Syntagm?.ReplaceTags(textBox.Text);
     }
 
     private void PasteTagsClick(object sender, RoutedEventArgs e)
