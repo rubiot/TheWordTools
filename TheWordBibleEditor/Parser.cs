@@ -20,15 +20,15 @@ namespace TheWord
       tokenizer.Text = verse;
     }
 
-    public IEnumerable<string> ParseTags(string tags, bool ignore_invalid = true)
+    public IEnumerable<string> ParseTags(string tags)
     {
       tokenizer.Text = tags;
       foreach (var token in tokenizer.GetTokens())
       {
         if (TagTokens.Contains(token.Type))
           yield return token.Value;
-        else if (ignore_invalid == false)
-          throw new Exception($"<{token.Value}> is not a valid tag");
+        else
+          throw new Exception($"\"{token.Value}\" cannot be associated to a word. This isn't a valid tag.");
       }
     }
 

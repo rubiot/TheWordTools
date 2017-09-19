@@ -271,7 +271,7 @@ namespace TheWord
     private string ReadLine()
     {
       if (stream.Peek() == -1)
-        throw new EndOfStreamException("There is no more verses");
+        throw new EndOfStreamException("There are no more verses");
       return stream.ReadLine();
     }
   }

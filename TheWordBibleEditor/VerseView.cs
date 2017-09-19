@@ -96,46 +96,38 @@ namespace TheWord
     {
       Items.Add(MakeMenuItem("Copy tags", CopyTagsClick));
       Items.Add(MakeMenuItem("Paste tags", PasteTagsClick));
-      Items.Add(MakeMenuItem("<Mark for review>", null));
+      Items.Add(MakeMenuItem("<Mark for review>", ReviewMarkClick));
       Items.Add(MakeMenuItem(tagsTextBox));
 
       Opened += OnOpened;
       tagsTextBox.KeyDown += TagsChange;
     }
 
+    private void ReviewMarkClick(object sender, RoutedEventArgs e)
+    {
+      if (syntagm.HasTag("<?>"))
+        syntagm.RemoveTag("<?>");
+      else
+        syntagm.AddTag("<?>");
+    }
+
     public void SetReadOnlyOption(bool value)
     {
       // TODO: This is too fragile. Make it safer
       (Items[1] as MenuItem).IsEnabled = !value;
+      (Items[2] as MenuItem).IsEnabled = !value;
       ((Items[3] as MenuItem).Header as TextBox).IsReadOnly = value;
     }
 
     private void OnOpened(object sender, RoutedEventArgs e)
     {
       if (syntagm.HasTag("<?>"))
-      {
         (Items[2] as MenuItem).Header = "Mark as reviewed";
-        (Items[2] as MenuItem).Click -= MarkForReviewClick;
-        (Items[2] as MenuItem).Click += MarkAsReviewedClick;
-      }
       else
-      {
         (Items[2] as MenuItem).Header = "Mark for review";
-        (Items[2] as MenuItem).Click -= MarkAsReviewedClick;
-        (Items[2] as MenuItem).Click += MarkForReviewClick;
-      }
+
       Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(delegate () { tagsTextBox.Focus(); }));
       tagsTextBox.SelectAll();
-    }
-
-    private void MarkAsReviewedClick(object sender, RoutedEventArgs e)
-    {
-      syntagm.RemoveTag("<?>");
-    }
-
-    private void MarkForReviewClick(object sender, RoutedEventArgs e)
-    {
-      syntagm.AddTag("<?>");
     }
 
     private void TagsChange(object sender, KeyEventArgs e)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Windows;
 
 namespace TheWord
 {
@@ -50,8 +51,15 @@ namespace TheWord
 
       tags.Clear();
 
-      foreach (var tag in Parser.Instance.ParseTags(new_tags))
-        tags.Add(tag);
+      try
+      {
+        foreach (var tag in Parser.Instance.ParseTags(new_tags))
+          tags.Add(tag);
+      }
+      catch (Exception e)
+      {
+        MessageBox.Show(e.Message);
+      }
 
       RaiseSytagmChanged();
     }
