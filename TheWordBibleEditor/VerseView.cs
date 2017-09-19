@@ -4,6 +4,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
 using Microsoft.Win32;
+using System.Collections.Generic;
+using System.Windows.Documents;
 
 namespace TheWord
 {
@@ -18,11 +20,15 @@ namespace TheWord
 
   class ContexMenuHelper : ContextMenu
   {
-    public MenuItem MakeMenuItem(object header, RoutedEventHandler click = null)
+    public Dictionary<string, MenuItem> ItemsMap = new Dictionary<string, MenuItem>();
+ 
+    public MenuItem MakeMenuItem(string key, object header, RoutedEventHandler click = null)
     {
       var item = new MenuItem() { Header = header };
       if (click != null)
         item.Click += click;
+      ItemsMap[key] = item;
+
       return item;
     }
   }
@@ -35,19 +41,19 @@ namespace TheWord
     {
       Verse = verse;
       Opened += OnOpened;
-      Items.Add(MakeMenuItem("Open...", OpenClick));
-      Items.Add(MakeMenuItem("Save",    SaveClick));
-      Items.Add(MakeMenuItem("Close",   CloseClick));
-      Items.Add(MakeMenuItem("<module path>", null));
+      Items.Add(MakeMenuItem("open", "Open...", OpenClick));
+      Items.Add(MakeMenuItem("save", "Save",    SaveClick));
+      Items.Add(MakeMenuItem("close", "Close",   CloseClick));
+      Items.Add(new Separator());
+      Items.Add(MakeMenuItem("path", "<module path>"));
+      ItemsMap["path"].IsEnabled = false;
     }
 
     private void OnOpened(object sender, RoutedEventArgs e)
     {
-      // TODO: Too fragile...
-      (Items[1] as MenuItem).IsEnabled = Verse.DataSource != null && Verse.DataSource.Modified;
-      (Items[2] as MenuItem).IsEnabled = Verse.DataSource != null;
-      (Items[3] as MenuItem).Header = Verse.DataSource?.FilePath;
-      (Items[3] as MenuItem).IsEnabled = false;
+      ItemsMap["save"].IsEnabled = Verse.DataSource != null && Verse.DataSource.Modified;
+      ItemsMap["close"].IsEnabled = Verse.DataSource != null;
+      ItemsMap["path"].Header = new Run(Verse.DataSource?.FilePath) { FontWeight = FontWeights.DemiBold };
     }
 
     private void CloseClick(object sender, RoutedEventArgs e)
@@ -94,10 +100,13 @@ namespace TheWord
 
     public SyntagmContextMenu() : base()
     {
-      Items.Add(MakeMenuItem("Copy tags", CopyTagsClick));
-      Items.Add(MakeMenuItem("Paste tags", PasteTagsClick));
-      Items.Add(MakeMenuItem("<Mark for review>", ReviewMarkClick));
-      Items.Add(MakeMenuItem(tagsTextBox));
+      Items.Add(MakeMenuItem("word", "<word>"));
+      ItemsMap["word"].IsEnabled = false;
+      Items.Add(new Separator());
+      Items.Add(MakeMenuItem("copy", "Copy tags", CopyTagsClick));
+      Items.Add(MakeMenuItem("paste", "Paste tags", PasteTagsClick));
+      Items.Add(MakeMenuItem("review", "<Mark for review>", ReviewMarkClick));
+      Items.Add(MakeMenuItem("tags", tagsTextBox));
 
       Opened += OnOpened;
       tagsTextBox.KeyDown += TagsChange;
@@ -113,18 +122,20 @@ namespace TheWord
 
     public void SetReadOnlyOption(bool value)
     {
-      // TODO: This is too fragile. Make it safer
-      (Items[1] as MenuItem).IsEnabled = !value;
-      (Items[2] as MenuItem).IsEnabled = !value;
-      ((Items[3] as MenuItem).Header as TextBox).IsReadOnly = value;
+      ItemsMap["copy"].IsEnabled = !value;
+      ItemsMap["paste"].IsEnabled = !value;
+      ItemsMap["review"].IsEnabled = !value;
+      (ItemsMap["tags"].Header as TextBox).IsReadOnly = value;
     }
 
     private void OnOpened(object sender, RoutedEventArgs e)
     {
+      ItemsMap["word"].Header = new Run(syntagm.Text) { FontSize = 14, FontWeight = FontWeights.DemiBold };
+
       if (syntagm.HasTag("<?>"))
-        (Items[2] as MenuItem).Header = "Mark as reviewed";
+        ItemsMap["review"].Header = "Mark as reviewed";
       else
-        (Items[2] as MenuItem).Header = "Mark for review";
+        ItemsMap["review"].Header = "Mark for review";
 
       Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(delegate () { tagsTextBox.Focus(); }));
       tagsTextBox.SelectAll();
