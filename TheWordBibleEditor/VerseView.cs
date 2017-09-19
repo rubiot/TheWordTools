@@ -129,12 +129,7 @@ namespace TheWord
     private void OnOpened(object sender, RoutedEventArgs e)
     {
       ItemsMap["word"].Header = new Run(syntagm.Text) { FontSize = 14, FontWeight = FontWeights.DemiBold };
-
-      if (syntagm.Review)
-        ItemsMap["review"].Header = "Mark as reviewed";
-      else
-        ItemsMap["review"].Header = "Mark for review";
-
+      ItemsMap["review"].Header = syntagm.Review ? "Mark as reviewed" : "Mark for review";
       Dispatcher.BeginInvoke(DispatcherPriority.ContextIdle, new Action(delegate () { tagsTextBox.Focus(); }));
       tagsTextBox.SelectAll();
     }
