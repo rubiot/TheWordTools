@@ -172,7 +172,12 @@ namespace TheWord
     public bool IsReadOnly
     {
       get => isReadOnly;
-      set { isReadOnly = value; contextMenu.SetReadOnlyOption(value); }
+      set
+      {
+        isReadOnly = value;
+        contextMenu.SetReadOnlyOption(value);
+        editBox.IsReadOnly = value;
+      }
     }
 
     public event EventHandler<SyntagmEventArgs> OnSyntagmClick;
