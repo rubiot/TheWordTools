@@ -114,10 +114,7 @@ namespace TheWord
 
     private void ReviewMarkClick(object sender, RoutedEventArgs e)
     {
-      if (syntagm.HasTag("<?>"))
-        syntagm.RemoveTag("<?>");
-      else
-        syntagm.AddTag("<?>");
+      syntagm.ToggleReviewMark();
     }
 
     public void SetReadOnlyOption(bool value)
@@ -132,7 +129,7 @@ namespace TheWord
     {
       ItemsMap["word"].Header = new Run(syntagm.Text) { FontSize = 14, FontWeight = FontWeights.DemiBold };
 
-      if (syntagm.HasTag("<?>"))
+      if (syntagm.Review)
         ItemsMap["review"].Header = "Mark as reviewed";
       else
         ItemsMap["review"].Header = "Mark for review";

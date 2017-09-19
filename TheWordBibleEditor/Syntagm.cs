@@ -9,6 +9,11 @@ namespace TheWord
     private string text;
     private List<string> tags = new List<string>();
 
+    public bool Review
+    {
+      get => HasTag("<?>");
+    }
+
     public string Text
     {
       get => text;
@@ -79,6 +84,17 @@ namespace TheWord
         if (t.Contains(tag))
           return true;
       return false;
+    }
+
+    public void ToggleReviewMark()
+    {
+      if (Review)
+      {
+        while (Review)
+          RemoveTag("<?>");
+      }
+      else
+        AddTag("<?>");
     }
   }
 }

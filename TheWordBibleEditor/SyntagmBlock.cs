@@ -54,7 +54,7 @@ namespace TheWord
         run.ToolTip = syntagm.AllTags;
       run.Foreground = syntagm.Tags.Count > 0 ? Brushes.Black : Brushes.Gray;
       run.TextDecorations.Clear();
-      if (syntagm.HasTag("<?>"))
+      if (syntagm.Review)
         run.TextDecorations.Add(new TextDecoration(TextDecorationLocation.Underline, new Pen(Brushes.Gray, 1) { DashStyle = DashStyles.DashDotDot }, 0, TextDecorationUnit.Pixel, TextDecorationUnit.Pixel));
     }
 
