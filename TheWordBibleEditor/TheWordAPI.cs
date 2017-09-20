@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.RegularExpressions;
 
 namespace TheWord
 {
@@ -36,6 +38,8 @@ namespace TheWord
     static extern int SendMessage(int hWnd, int Msg, int wParam, ref COPYDATASTRUCT lParam);
     [DllImport("User32.dll", CharSet = CharSet.Auto)]
     static extern Int32 FindWindow(String lpClassName, String lpWindowName);
+    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+    public static extern int GetWindowText(Int32 hWnd, StringBuilder lpString, int nMaxCount);
 
     const string TheWordClassName        = "theWord.0f2ba8a0-906d-11e1-b0c4-0800200c9a66.UnicodeClass";
     const uint COPYDATA_OP_GOTOVERSE     = 0xffff0001;
@@ -48,6 +52,20 @@ namespace TheWord
       Message msg = new Message() { span = 0, bi = book, ci = chapter, vi = verse };
       COPYDATASTRUCT cds = new COPYDATASTRUCT(COPYDATA_OP_GOTOVERSE, msg);
       return SendMessage(hWnd, WM_COPYDATA, 0, ref cds);
+    }
+
+    static public string GetTheWordCurrentVref()
+    {
+      int hWnd = FindWindow(TheWordClassName, null);
+
+      if (hWnd != 0)
+      {
+        var sbWindowText = new StringBuilder(1024);
+        GetWindowText(hWnd, sbWindowText, sbWindowText.Capacity);
+        return Regex.Replace(sbWindowText.ToString(), "\\s+-.*$", "");
+      }
+
+      return "";
     }
   }
 }
