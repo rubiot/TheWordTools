@@ -120,7 +120,6 @@ namespace TheWord
 
     public void SetReadOnlyOption(bool value)
     {
-      ItemsMap["copy"].IsEnabled = !value;
       ItemsMap["paste"].IsEnabled = !value;
       ItemsMap["review"].IsEnabled = !value;
       (ItemsMap["tags"].Header as TextBox).IsReadOnly = value;
