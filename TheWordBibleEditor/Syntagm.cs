@@ -86,6 +86,14 @@ namespace TheWord
       return false;
     }
 
+    public string GetFirstStrong()
+    {
+      foreach (var t in tags)
+        if (t.StartsWith("<W"))
+          return t.Substring(2, t.Length - 3);
+      return "";
+    }
+
     public void ToggleReviewMark()
     {
       if (Review)

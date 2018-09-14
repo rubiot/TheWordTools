@@ -8,7 +8,7 @@ namespace TheWord
   public class TheWordAPI
   {
     [StructLayout(LayoutKind.Sequential)]
-    struct Message
+    struct GoToRefMessage
     {
       public byte span;
       public byte vi;
@@ -17,13 +17,29 @@ namespace TheWord
     }
 
     [StructLayout(LayoutKind.Sequential)]
-    struct COPYDATASTRUCT
+    struct COPYDATASTRUCT_DICT
+    {
+      public uint dwData;
+      public int cbData;
+      [MarshalAs(UnmanagedType.LPWStr, SizeConst = 255)]
+      public string lpData;
+
+      public COPYDATASTRUCT_DICT(uint op, string msg)
+      {
+        dwData = op;
+        lpData = msg;
+        cbData = 255;
+      }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    struct COPYDATASTRUCT_REF
     {
       public uint dwData;
       public int cbData;
       public IntPtr lpData;
 
-      public COPYDATASTRUCT(uint op, Message msg)
+      public COPYDATASTRUCT_REF(uint op, GoToRefMessage msg)
       {
         IntPtr structPtr = Marshal.AllocCoTaskMem(Marshal.SizeOf(msg));
         Marshal.StructureToPtr(msg, structPtr, false);
@@ -34,8 +50,10 @@ namespace TheWord
       }
     }
 
-    [DllImport("User32.dll", EntryPoint = "SendMessage", CharSet = CharSet.Auto)]
-    static extern int SendMessage(int hWnd, int Msg, int wParam, ref COPYDATASTRUCT lParam);
+    [DllImport("User32.dll", EntryPoint = "SendMessage", CharSet = CharSet.Unicode)]
+    static extern int SendMessageDict(int hWnd, int Msg, int wParam, ref COPYDATASTRUCT_DICT lParam);
+    [DllImport("User32.dll", EntryPoint = "SendMessage", CharSet = CharSet.Unicode)]
+    static extern int SendMessage(int hWnd, int Msg, int wParam, ref COPYDATASTRUCT_REF lParam);
     [DllImport("User32.dll", CharSet = CharSet.Auto)]
     static extern Int32 FindWindow(String lpClassName, String lpWindowName);
     [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -49,9 +67,16 @@ namespace TheWord
     static public int SynchronizeRef(byte book, byte chapter, byte verse)
     {
       int hWnd = FindWindow(TheWordClassName, null);
-      Message msg = new Message() { span = 0, bi = book, ci = chapter, vi = verse };
-      COPYDATASTRUCT cds = new COPYDATASTRUCT(COPYDATA_OP_GOTOVERSE, msg);
+      GoToRefMessage msg = new GoToRefMessage() { span = 0, bi = book, ci = chapter, vi = verse };
+      COPYDATASTRUCT_REF cds = new COPYDATASTRUCT_REF(COPYDATA_OP_GOTOVERSE, msg);
       return SendMessage(hWnd, WM_COPYDATA, 0, ref cds);
+    }
+
+    static public int SynchronizeDictionary(string word)
+    {
+      int hWnd = FindWindow(TheWordClassName, null);
+      COPYDATASTRUCT_DICT cds = new COPYDATASTRUCT_DICT(COPYDATA_OP_DCTWORDLOOKUP, word);
+      return SendMessageDict(hWnd, WM_COPYDATA, 0, ref cds);
     }
 
     static public string GetTheWordCurrentVref()
